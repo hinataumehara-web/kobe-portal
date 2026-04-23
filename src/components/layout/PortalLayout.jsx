@@ -1,0 +1,29 @@
+import Header from './Header.jsx'
+import Sidebar from './Sidebar.jsx'
+import BottomNav from './BottomNav.jsx'
+
+/**
+ * 認証後のメインレイアウト
+ * PC: Header + Sidebar + コンテンツ
+ * モバイル: Header + コンテンツ + BottomNav
+ */
+export default function PortalLayout({ profile, page, onNavigate, onSignOut, children }) {
+  return (
+    <div className="flex flex-col h-screen">
+      <Header profile={profile} onSignOut={onSignOut} />
+
+      <div className="flex flex-1 overflow-hidden">
+        <Sidebar page={page} onNavigate={onNavigate} />
+
+        {/* メインコンテンツ */}
+        <main className="flex-1 overflow-y-auto bg-gray-50 pb-16 md:pb-0">
+          <div className="p-4 max-w-4xl mx-auto">
+            {children}
+          </div>
+        </main>
+      </div>
+
+      <BottomNav page={page} onNavigate={onNavigate} />
+    </div>
+  )
+}
