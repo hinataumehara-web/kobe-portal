@@ -47,7 +47,7 @@ export default function LoginForm({ signIn, onSent }) {
         <div className="mb-6 text-center">
           <div
             className="inline-block w-12 h-12 rounded-full mb-3 flex items-center justify-center text-white font-bold text-lg"
-            style={{ backgroundColor: '#7a1e2f' }}
+            style={{ backgroundColor: '#4e8b68' }}
           >
             神大
           </div>
@@ -66,7 +66,7 @@ export default function LoginForm({ signIn, onSent }) {
               onChange={(e) => setName(e.target.value)}
               placeholder="例: 山田 太郎"
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2"
-              style={{ '--tw-ring-color': '#7a1e2f' }}
+              style={{ '--tw-ring-color': '#4e8b68' }}
             />
           </div>
 
@@ -94,7 +94,7 @@ export default function LoginForm({ signIn, onSent }) {
             type="submit"
             disabled={loading}
             className="w-full text-white rounded-lg py-2 text-sm font-medium transition disabled:opacity-50"
-            style={{ backgroundColor: '#7a1e2f' }}
+            style={{ backgroundColor: '#4e8b68' }}
           >
             {loading ? '送信中...' : 'ログインリンクを送信'}
           </button>

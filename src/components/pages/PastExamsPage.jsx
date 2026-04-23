@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { courses } from '../../data/courses.js'
 
-const CRIMSON = '#7a1e2f'
+const CRIMSON = '#4e8b68'
 const CURRENT_YEAR = new Date().getFullYear()
 
 /**
@@ -73,12 +73,12 @@ export default function PastExamsPage({ exams, loading, uploadExam, getDownloadU
           value={searchName}
           onChange={(e) => setSearchName(e.target.value)}
           placeholder="科目名で検索"
-          className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-800 w-48"
+          className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-700 w-48"
         />
         <select
           value={filterYear}
           onChange={(e) => setFilterYear(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-800"
+          className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-700"
         >
           <option value="">すべての年度</option>
           {years.map((y) => (
@@ -90,7 +90,7 @@ export default function PastExamsPage({ exams, loading, uploadExam, getDownloadU
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="w-6 h-6 border-2 border-gray-300 border-t-red-800 rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-gray-300 border-t-green-700 rounded-full animate-spin" />
         </div>
       ) : Object.keys(grouped).length === 0 ? (
         <div className="text-center py-12 text-gray-400 text-sm">
@@ -136,7 +136,7 @@ export default function PastExamsPage({ exams, loading, uploadExam, getDownloadU
                           {exam.uploaded_by === profile?.id && (
                             <button
                               onClick={() => handleDelete(exam)}
-                              className="text-xs text-gray-400 hover:text-red-600"
+                              className="text-xs text-gray-400 hover:text-red-500"
                             >
                               削除
                             </button>
@@ -209,7 +209,7 @@ function UploadModal({ profile, onClose, onSubmit, showToast }) {
             <select
               value={courseId}
               onChange={(e) => setCourseId(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-800"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-700"
             >
               <option value="">選択してください</option>
               {courses.map((c) => (
@@ -226,7 +226,7 @@ function UploadModal({ profile, onClose, onSubmit, showToast }) {
               onChange={(e) => setYear(e.target.value)}
               min="2000"
               max={CURRENT_YEAR}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-800"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-700"
             />
           </div>
 
@@ -254,7 +254,7 @@ function UploadModal({ profile, onClose, onSubmit, showToast }) {
               onChange={(e) => setComment(e.target.value)}
               rows={2}
               placeholder="記述式中心、持ち込み可、など"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-800 resize-none"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-700 resize-none"
             />
           </div>
 

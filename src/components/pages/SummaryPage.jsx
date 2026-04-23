@@ -2,7 +2,7 @@ import { calcSummary } from '../../lib/creditCalc.js'
 import { courses } from '../../data/courses.js'
 import { TOTAL_REQUIRED_CREDITS } from '../../data/requirements.js'
 
-const CRIMSON = '#7a1e2f'
+const CRIMSON = '#4e8b68'
 
 /**
  * 単位集計ページ
@@ -11,7 +11,7 @@ export default function SummaryPage({ credits, loading }) {
   if (loading) {
     return (
       <div className="flex justify-center py-12">
-        <div className="w-6 h-6 border-2 border-gray-300 border-t-red-800 rounded-full animate-spin" />
+        <div className="w-6 h-6 border-2 border-gray-300 border-t-green-700 rounded-full animate-spin" />
       </div>
     )
   }

@@ -5,8 +5,8 @@ import { calcSummary } from '../../lib/creditCalc.js'
 import { courses } from '../../data/courses.js'
 import { TOTAL_REQUIRED_CREDITS } from '../../data/requirements.js'
 
-const CRIMSON = '#7a1e2f'
-const GREEN   = '#2f5d3a'
+const CRIMSON = '#4e8b68'
+const GREEN   = '#6aaa82'
 
 /**
  * ホーム(ダッシュボード)ページ

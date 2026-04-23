@@ -4,7 +4,12 @@
       "Bash(npm install *)",
       "Bash(npm run *)",
       "Read(//tmp/**)",
-      "Bash(gh auth *)"
+      "Bash(gh auth *)",
+      "Bash(gh repo *)",
+      "Bash(vercel --yes)",
+      "Bash(vercel --yes --name kobe-portal)",
+      "Bash(vercel env *)",
+      "Bash(vercel --prod)"
     ]
   }
 }

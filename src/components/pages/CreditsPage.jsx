@@ -4,7 +4,7 @@ import { courses, SUBCATEGORIES } from '../../data/courses.js'
 const GRADES = ['未履修', '秀', '優', '良', '可', '不可']
 
 const BADGE = {
-  [SUBCATEGORIES.REQUIRED]: 'bg-red-100 text-red-700',
+  [SUBCATEGORIES.REQUIRED]: 'bg-amber-100 text-amber-700',
   [SUBCATEGORIES.ELECTIVE]: 'bg-blue-100 text-blue-700',
   [SUBCATEGORIES.FREE]:     'bg-gray-100 text-gray-500',
 }
@@ -36,7 +36,7 @@ export default function CreditsPage({ credits, updateGrade, loading, showToast }
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="w-6 h-6 border-2 border-gray-300 border-t-red-800 rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-gray-300 border-t-green-700 rounded-full animate-spin" />
         </div>
       ) : (
         <div className="overflow-x-auto">

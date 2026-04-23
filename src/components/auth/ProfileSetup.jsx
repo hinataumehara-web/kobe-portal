@@ -50,7 +50,7 @@ export default function ProfileSetup({ email, createProfile }) {
             type="submit"
             disabled={loading}
             className="w-full text-white rounded-lg py-2 text-sm font-medium transition disabled:opacity-50"
-            style={{ backgroundColor: '#7a1e2f' }}
+            style={{ backgroundColor: '#4e8b68' }}
           >
             {loading ? '登録中...' : 'ポータルに進む'}
           </button>

@@ -4,7 +4,7 @@ import { courses, CATEGORIES, SUBCATEGORIES } from '../../data/courses.js'
 const CATEGORY_LABELS = Object.values(CATEGORIES)
 
 const BADGE = {
-  [SUBCATEGORIES.REQUIRED]: 'bg-red-100 text-red-700',
+  [SUBCATEGORIES.REQUIRED]: 'bg-amber-100 text-amber-700',
   [SUBCATEGORIES.ELECTIVE]: 'bg-blue-100 text-blue-700',
   [SUBCATEGORIES.FREE]:     'bg-gray-100 text-gray-500',
 }
@@ -31,7 +31,7 @@ export default function CoursesPage() {
         <select
           value={filterCategory}
           onChange={(e) => setFilterCategory(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-800"
+          className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-700"
         >
           <option value="すべて">すべてのカテゴリ</option>
           {CATEGORY_LABELS.map((cat) => (
@@ -41,7 +41,7 @@ export default function CoursesPage() {
         <select
           value={filterSubcategory}
           onChange={(e) => setFilterSubcategory(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-800"
+          className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-700"
         >
           <option value="すべて">すべての区分</option>
           {Object.values(SUBCATEGORIES).map((s) => (

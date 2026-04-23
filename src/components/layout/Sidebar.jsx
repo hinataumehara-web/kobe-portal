@@ -15,7 +15,7 @@ export default function Sidebar({ page, onNavigate }) {
   return (
     <aside
       className="hidden md:flex flex-col w-48 shrink-0 pt-2"
-      style={{ backgroundColor: '#5c1622' }}
+      style={{ backgroundColor: '#3a7050' }}
     >
       {NAV_ITEMS.map(({ key, label, Icon }) => {
         const active = page === key

@@ -21,7 +21,7 @@ export default function BottomNav({ page, onNavigate }) {
             key={key}
             onClick={() => onNavigate(key)}
             className="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 transition"
-            style={{ color: active ? '#7a1e2f' : '#9ca3af' }}
+            style={{ color: active ? '#4e8b68' : '#9ca3af' }}
           >
             <Icon size={18} />
             <span className="text-[10px] leading-none">{label}</span>

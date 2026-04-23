@@ -5,7 +5,7 @@ export default function Header({ profile, onSignOut }) {
   return (
     <header
       className="h-14 flex items-center justify-between px-4 text-white shrink-0"
-      style={{ backgroundColor: '#7a1e2f' }}
+      style={{ backgroundColor: '#4e8b68' }}
     >
       <div className="flex items-center gap-2">
         <span className="font-bold text-sm hidden sm:inline">

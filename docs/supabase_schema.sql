@@ -105,3 +105,37 @@ drop policy if exists "自分の投稿のみ削除可" on public.past_exams;
 create policy "自分の投稿のみ削除可"
   on public.past_exams for delete
   using (auth.uid() = uploaded_by);
+
+-- -------------------------------------------------------------------------
+-- Storage バケット past-exams の RLS ポリシー
+-- ※ バケット自体は Dashboard > Storage > New bucket で手動作成してください
+--   バケット名: past-exams / Public: OFF
+-- 以下の SQL はバケット作成後に実行してください
+-- -------------------------------------------------------------------------
+
+-- 閲覧: ログイン済みユーザーのみ
+drop policy if exists "authenticated users can read past-exams" on storage.objects;
+create policy "authenticated users can read past-exams"
+  on storage.objects for select
+  using (
+    bucket_id = 'past-exams'
+    and auth.role() = 'authenticated'
+  );
+
+-- アップロード: ログイン済みユーザーのみ
+drop policy if exists "authenticated users can upload past-exams" on storage.objects;
+create policy "authenticated users can upload past-exams"
+  on storage.objects for insert
+  with check (
+    bucket_id = 'past-exams'
+    and auth.role() = 'authenticated'
+  );
+
+-- 削除: 自分がアップロードしたファイルのみ
+drop policy if exists "owners can delete past-exams" on storage.objects;
+create policy "owners can delete past-exams"
+  on storage.objects for delete
+  using (
+    bucket_id = 'past-exams'
+    and auth.uid()::text = (storage.foldername(name))[1]
+  );
