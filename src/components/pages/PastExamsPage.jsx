@@ -234,15 +234,22 @@ function UploadModal({ profile, onClose, onSubmit, showToast }) {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               ファイル <span className="text-gray-400 text-xs">(任意)</span>
             </label>
-            <input
-              type="file"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-              className="w-full text-sm text-gray-600 file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:text-white file:cursor-pointer"
-              style={{ '--file-bg': CRIMSON }}
-            />
-            <p className="text-xs text-gray-400 mt-1">
-              ※ Supabase Storage バケット「past-exams」が事前に作成されている必要があります
-            </p>
+            <label className="flex items-center gap-3 w-full border border-gray-300 rounded-lg px-3 py-2 cursor-pointer hover:bg-gray-50 transition">
+              <span
+                className="text-xs text-white px-3 py-1 rounded shrink-0"
+                style={{ backgroundColor: CRIMSON }}
+              >
+                ファイルを選択
+              </span>
+              <span className="text-sm text-gray-500 truncate">
+                {file ? file.name : '未選択'}
+              </span>
+              <input
+                type="file"
+                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                className="hidden"
+              />
+            </label>
           </div>
 
           <div>
