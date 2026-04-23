@@ -7,8 +7,12 @@ const CURRENT_YEAR = new Date().getFullYear()
 /**
  * 過去問一覧・投稿ページ
  */
-export default function PastExamsPage({ exams, loading, uploadExam, getDownloadUrl, deleteExam, profile, showToast }) {
-  const [searchName,   setSearchName]   = useState('')
+export default function PastExamsPage({ exams, loading, uploadExam, getDownloadUrl, deleteExam, profile, showToast, initialCourseId }) {
+  // 授業情報ページから遷移してきた場合は course_id で初期フィルタ
+  const initialName = initialCourseId
+    ? (exams.find((e) => e.course_id === initialCourseId)?.course_name ?? '')
+    : ''
+  const [searchName,   setSearchName]   = useState(initialName)
   const [filterYear,   setFilterYear]   = useState('')
   const [showModal,    setShowModal]    = useState(false)
   const [dlLoading,    setDlLoading]    = useState(null) // 署名URL取得中の exam.id

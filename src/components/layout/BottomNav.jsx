@@ -1,11 +1,12 @@
-import { Home, BookOpen, FileText, ClipboardList, BarChart2 } from 'lucide-react'
+import { Home, BookOpen, GraduationCap, FileText, ClipboardList, BarChart2 } from 'lucide-react'
 
 const NAV_ITEMS = [
-  { key: 'home',    label: 'ホーム',   Icon: Home },
-  { key: 'courses', label: '科目',     Icon: BookOpen },
-  { key: 'exams',   label: '過去問',   Icon: FileText },
-  { key: 'credits', label: '成績',     Icon: ClipboardList },
-  { key: 'summary', label: '集計',     Icon: BarChart2 },
+  { key: 'home',       label: 'ホーム', Icon: Home },
+  { key: 'courses',    label: '科目',   Icon: BookOpen },
+  { key: 'courseInfo', label: '授業',   Icon: GraduationCap },
+  { key: 'exams',      label: '過去問', Icon: FileText },
+  { key: 'credits',    label: '成績',   Icon: ClipboardList },
+  { key: 'summary',    label: '集計',   Icon: BarChart2 },
 ]
 
 /**

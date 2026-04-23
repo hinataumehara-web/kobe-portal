@@ -10,20 +10,34 @@ import ProfileSetup  from './components/auth/ProfileSetup.jsx'
 import PortalLayout  from './components/layout/PortalLayout.jsx'
 import { useToast, ToastContainer } from './components/Toast.jsx'
 
-import HomePage     from './components/pages/HomePage.jsx'
-import CoursesPage  from './components/pages/CoursesPage.jsx'
-import PastExamsPage from './components/pages/PastExamsPage.jsx'
-import CreditsPage  from './components/pages/CreditsPage.jsx'
-import SummaryPage  from './components/pages/SummaryPage.jsx'
+import HomePage       from './components/pages/HomePage.jsx'
+import CoursesPage    from './components/pages/CoursesPage.jsx'
+import CourseInfoPage from './components/pages/CourseInfoPage.jsx'
+import PastExamsPage  from './components/pages/PastExamsPage.jsx'
+import CreditsPage    from './components/pages/CreditsPage.jsx'
+import SummaryPage    from './components/pages/SummaryPage.jsx'
 
 export default function App() {
   const { session, profile, loading: authLoading, signIn, signOut, createProfile } = useAuth()
   const { credits, loading: creditsLoading, updateGrade } = useCredits(profile?.id)
   const { exams, loading: examsLoading, uploadExam, getDownloadUrl, deleteExam } = usePastExams()
 
-  const [page,        setPage]        = useState('home')
-  const [sentEmail,   setSentEmail]   = useState('')
-  const { toasts, showToast }         = useToast()
+  const [page,             setPage]             = useState('home')
+  const [sentEmail,        setSentEmail]        = useState('')
+  const [pastExamsFilter,  setPastExamsFilter]  = useState(null) // 授業情報→過去問の絞り込み用
+  const { toasts, showToast }                   = useToast()
+
+  // 授業情報ページから過去問ページへ遷移するハンドラ
+  function navigateToExams(courseId) {
+    setPastExamsFilter(courseId)
+    setPage('exams')
+  }
+
+  // 通常のページ遷移(過去問フィルタをリセット)
+  function handleNavigate(p) {
+    if (p !== 'exams') setPastExamsFilter(null)
+    setPage(p)
+  }
 
   // ── ローディング中 ──────────────────────────────────────────
   if (authLoading) {
@@ -76,6 +90,8 @@ export default function App() {
         )
       case 'courses':
         return <CoursesPage />
+      case 'courseInfo':
+        return <CourseInfoPage onNavigateToExams={navigateToExams} />
       case 'exams':
         return (
           <PastExamsPage
@@ -86,6 +102,7 @@ export default function App() {
             deleteExam={deleteExam}
             profile={profile}
             showToast={showToast}
+            initialCourseId={pastExamsFilter}
           />
         )
       case 'credits':
@@ -114,7 +131,7 @@ export default function App() {
       <PortalLayout
         profile={profile}
         page={page}
-        onNavigate={setPage}
+        onNavigate={handleNavigate}
         onSignOut={signOut}
       >
         {renderPage()}
