@@ -49,7 +49,13 @@ export function useAuth() {
       .eq('id', userId)
       .maybeSingle()
 
-    if (!error) setProfile(data) // data は null の場合もある(初回)
+    if (!error) {
+      setProfile(data)
+      // ログイン成功後にメールを保存(次回ワンクリックログイン用)
+      if (data?.email) {
+        localStorage.setItem('portal:saved_email', data.email)
+      }
+    }
     setLoading(false)
   }
 
@@ -68,7 +74,7 @@ export function useAuth() {
     if (error) throw error
   }
 
-  /** ログアウト */
+  /** ログアウト(saved_email は残す — 次回ワンクリックログインに使う) */
   async function signOut() {
     await supabase.auth.signOut()
   }
@@ -97,6 +103,7 @@ export function useAuth() {
 
     if (error) throw error
     setProfile(data)
+    localStorage.setItem('portal:saved_email', data.email)
     return data
   }
 
