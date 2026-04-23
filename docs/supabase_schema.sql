@@ -107,6 +107,48 @@ create policy "自分の投稿のみ削除可"
   using (auth.uid() = uploaded_by);
 
 -- -------------------------------------------------------------------------
+-- 授業攻略情報
+-- -------------------------------------------------------------------------
+create table if not exists public.course_info (
+  id             uuid default gen_random_uuid() primary key,
+  course_id      text,              -- courses.js の Course.id (null = マスタ未登録)
+  name           text not null,     -- 科目名
+  schedule       text,              -- 曜日・時限
+  difficulty     text check (difficulty in ('楽単','普通','難')) not null,
+  tags           text[] default '{}',
+  summary        text not null,     -- 一言まとめ
+  detail         text not null,     -- 詳細な攻略情報
+  exam_tips      text,              -- テスト対策(任意)
+  submitted_by   uuid references public.profiles(id) on delete set null,
+  submitter_name text,              -- 投稿者名(非正規化)
+  is_anonymous   boolean default true,
+  created_at     timestamptz default now(),
+  updated_at     timestamptz default now()
+);
+
+alter table public.course_info enable row level security;
+
+drop policy if exists "ログイン済みユーザーは授業情報を閲覧可" on public.course_info;
+create policy "ログイン済みユーザーは授業情報を閲覧可"
+  on public.course_info for select
+  using (auth.role() = 'authenticated');
+
+drop policy if exists "ログイン済みユーザーは授業情報を投稿可" on public.course_info;
+create policy "ログイン済みユーザーは授業情報を投稿可"
+  on public.course_info for insert
+  with check (auth.role() = 'authenticated');
+
+drop policy if exists "自分の授業情報のみ削除可" on public.course_info;
+create policy "自分の授業情報のみ削除可"
+  on public.course_info for delete
+  using (auth.uid() = submitted_by);
+
+drop trigger if exists course_info_updated_at on public.course_info;
+create trigger course_info_updated_at
+  before update on public.course_info
+  for each row execute function public.set_updated_at();
+
+-- -------------------------------------------------------------------------
 -- Storage バケット past-exams の RLS ポリシー
 -- ※ バケット自体は Dashboard > Storage > New bucket で手動作成してください
 --   バケット名: past-exams / Public: OFF

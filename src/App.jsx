@@ -1,8 +1,9 @@
 import { useState } from 'react'
 
-import { useAuth }      from './hooks/useAuth.js'
-import { useCredits }   from './hooks/useCredits.js'
-import { usePastExams } from './hooks/usePastExams.js'
+import { useAuth }       from './hooks/useAuth.js'
+import { useCredits }    from './hooks/useCredits.js'
+import { usePastExams }  from './hooks/usePastExams.js'
+import { useCourseInfo } from './hooks/useCourseInfo.js'
 
 import LoginForm     from './components/auth/LoginForm.jsx'
 import MagicLinkSent from './components/auth/MagicLinkSent.jsx'
@@ -21,6 +22,7 @@ export default function App() {
   const { session, profile, loading: authLoading, signIn, signOut, createProfile } = useAuth()
   const { credits, loading: creditsLoading, updateGrade } = useCredits(profile?.id)
   const { exams, loading: examsLoading, uploadExam, getDownloadUrl, deleteExam } = usePastExams()
+  const { courseInfos, loading: courseInfoLoading, submitCourseInfo, deleteCourseInfo } = useCourseInfo()
 
   const [page,             setPage]             = useState('home')
   const [sentEmail,        setSentEmail]        = useState('')
@@ -91,7 +93,17 @@ export default function App() {
       case 'courses':
         return <CoursesPage />
       case 'courseInfo':
-        return <CourseInfoPage onNavigateToExams={navigateToExams} />
+        return (
+          <CourseInfoPage
+            courseInfos={courseInfos}
+            loading={courseInfoLoading}
+            submitCourseInfo={submitCourseInfo}
+            deleteCourseInfo={deleteCourseInfo}
+            profile={profile}
+            onNavigateToExams={navigateToExams}
+            showToast={showToast}
+          />
+        )
       case 'exams':
         return (
           <PastExamsPage
