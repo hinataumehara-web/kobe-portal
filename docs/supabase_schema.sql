@@ -15,12 +15,16 @@
 -- profiles テーブル
 -- -------------------------------------------------------------------------
 create table if not exists public.profiles (
-  id         uuid references auth.users on delete cascade primary key,
-  student_id text not null unique,
-  name       text not null,
-  email      text not null unique,
-  created_at timestamptz default now()
+  id             uuid references auth.users on delete cascade primary key,
+  student_id     text not null unique,
+  name           text not null,
+  email          text not null unique,
+  admission_year integer,   -- 入学年度: 2024以前=旧制度, 2025以降=新制度, null=未設定
+  created_at     timestamptz default now()
 );
+
+-- 既存テーブルへのカラム追加(冪等)
+alter table public.profiles add column if not exists admission_year integer;
 
 alter table public.profiles enable row level security;
 
@@ -86,8 +90,13 @@ create table if not exists public.past_exams (
   is_anonymous  boolean default true,
   uploaded_by   uuid references public.profiles(id) on delete set null,
   uploader_name text,
+  curriculum    text default 'common' check (curriculum in ('old', '2025', 'common')),
   created_at    timestamptz default now()
 );
+
+-- 既存テーブルへのカラム追加(冪等)
+alter table public.past_exams add column if not exists curriculum text default 'common'
+  check (curriculum in ('old', '2025', 'common'));
 
 alter table public.past_exams enable row level security;
 

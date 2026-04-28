@@ -1,18 +1,24 @@
 import { useState } from 'react'
-import { courses, CATEGORIES, SUBCATEGORIES } from '../../data/courses.js'
-
-const CATEGORY_LABELS = Object.values(CATEGORIES)
-
-const BADGE = {
-  [SUBCATEGORIES.REQUIRED]: 'bg-amber-100 text-amber-700',
-  [SUBCATEGORIES.ELECTIVE]: 'bg-blue-100 text-blue-700',
-  [SUBCATEGORIES.FREE]:     'bg-gray-100 text-gray-500',
-}
+import { useCurriculum } from '../../hooks/useCurriculum.js'
 
 /**
- * 科目一覧ページ
+ * 科目一覧ページ — カリキュラムに応じた科目を表示
  */
 export default function CoursesPage() {
+  const curriculum = useCurriculum()
+  const { courses, categories, subcategories } = curriculum
+
+  const CATEGORY_LABELS = Object.values(categories).filter(
+    // 仮想カテゴリ(科目が存在しない集計専用)は除外
+    (cat) => courses.some((c) => c.category === cat)
+  )
+
+  const BADGE = {
+    [subcategories.REQUIRED]: 'bg-amber-100 text-amber-700',
+    [subcategories.ELECTIVE]: 'bg-blue-100 text-blue-700',
+    [subcategories.FREE]:     'bg-gray-100 text-gray-500',
+  }
+
   const [filterCategory,    setFilterCategory]    = useState('すべて')
   const [filterSubcategory, setFilterSubcategory] = useState('すべて')
 
@@ -44,7 +50,7 @@ export default function CoursesPage() {
           className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-700"
         >
           <option value="すべて">すべての区分</option>
-          {Object.values(SUBCATEGORIES).map((s) => (
+          {Object.values(subcategories).map((s) => (
             <option key={s} value={s}>{s}</option>
           ))}
         </select>

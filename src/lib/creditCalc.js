@@ -1,30 +1,37 @@
-import { CATEGORIES } from '../data/courses.js'
-import { REQUIREMENTS, TOTAL_REQUIRED_CREDITS } from '../data/requirements.js'
+// ============================================================================
+// 単位集計ロジック
+//
+// calcSummary(userCredits, curriculum) を外部から呼ぶ。
+// curriculum は getCurriculum() の返り値 { key, courses, categories, requirements, totalRequired }。
+// ============================================================================
+
+/** 成績の重み定数 */
+export const GRADE_WEIGHTS = { 秀: 4, 優: 3, 良: 2, 可: 1, 不可: 0 }
+
+// 旧制度の自由入力カテゴリ
+const OLD_FREE_CATS = new Set(['自由科目(農学部開講)', '自由科目(他学部開講)'])
 
 /**
- * 履修データから単位集計を計算する
- * @param {Array} userCredits - Supabase の user_credits テーブルのレコード配列
- * @param {Array} courses - courses.js の courses 配列
- * @returns {{ results: Array, totalEarned: number }}
+ * 合格扱いのレコードを抽出する
  */
-export function calcSummary(userCredits, courses) {
-  // 合格扱いのレコードだけ抽出(不可・未履修を除く)
-  const passed = userCredits.filter(
+function filterPassed(userCredits) {
+  return userCredits.filter(
     (uc) => uc.grade && uc.grade !== '不可' && uc.grade !== '未履修'
   )
+}
 
-  const results = REQUIREMENTS.map((req) => {
+// ============================================================================
+// 旧制度(2024以前)用計算
+// ============================================================================
+function calcOld(passed, courses, requirements, totalRequired) {
+  const results = requirements.map((req) => {
     let earned = 0
 
-    if (
-      req.category === CATEGORIES.PRO_FREE_AGRI ||
-      req.category === CATEGORIES.PRO_FREE_OTHER
-    ) {
-      // 自由科目: course_id がない自由入力分のみ集計
-      const free = passed.filter((uc) => {
-        if (uc.course_id) return false
-        return uc.custom_category === req.category
-      })
+    if (OLD_FREE_CATS.has(req.category)) {
+      // 自由科目: course_id のない自由入力分のみ集計
+      const free = passed.filter(
+        (uc) => !uc.course_id && uc.custom_category === req.category
+      )
       earned = free.reduce((sum, uc) => sum + (uc.custom_credits || 0), 0)
     } else {
       const matched = passed.filter((uc) => {
@@ -46,8 +53,122 @@ export function calcSummary(userCredits, courses) {
   })
 
   const totalEarned = results.reduce((sum, r) => sum + r.countable, 0)
-  return { results, totalEarned, totalRequired: TOTAL_REQUIRED_CREDITS }
+  return { results, totalEarned, totalRequired, nestedRequirements: null }
 }
 
-/** 成績の重み定数 */
-export const GRADE_WEIGHTS = { 秀: 4, 優: 3, 良: 2, 可: 1, 不可: 0 }
+// ============================================================================
+// 新制度(2025以降)用計算
+// ============================================================================
+function calcNew2025(passed, courses, requirements, categories, totalRequired) {
+  // Step 1: カテゴリごとの取得単位を集計
+  const earnedByCategory = {}
+  for (const cat of Object.values(categories)) {
+    earnedByCategory[cat] = 0
+  }
+
+  for (const uc of passed) {
+    if (!uc.course_id) {
+      // 自由入力科目(custom_category)
+      if (uc.custom_category && earnedByCategory[uc.custom_category] !== undefined) {
+        earnedByCategory[uc.custom_category] += uc.custom_credits || 0
+      }
+      continue
+    }
+    const course = courses.find((c) => c.id === uc.course_id)
+    if (course && earnedByCategory[course.category] !== undefined) {
+      earnedByCategory[course.category] += course.credits || 0
+    }
+  }
+
+  // Step 2: 仮想カテゴリを計算
+  const hsInner =
+    (earnedByCategory[categories.LIBERAL_HUMANITIES] || 0) +
+    (earnedByCategory[categories.LIBERAL_SOCIAL]     || 0)
+
+  const hsnTotal =
+    hsInner +
+    (earnedByCategory[categories.LIBERAL_NATURAL]    || 0) +
+    (earnedByCategory[categories.LIBERAL_INTEGRATED] || 0)
+
+  earnedByCategory[categories.LIBERAL_HS_INNER]  = hsInner
+  earnedByCategory[categories.LIBERAL_HSN_TOTAL] = hsnTotal
+
+  // Step 3: 外国語・健康スポーツの超過分 → FREE_SELECT へ
+  const lang1Over = Math.max(0, (earnedByCategory[categories.FOREIGN_LANG_1] || 0) - 4)
+  const lang2Over = Math.max(0, (earnedByCategory[categories.FOREIGN_LANG_2] || 0) - 4)
+  const hsOver    = Math.max(0, (earnedByCategory[categories.HEALTH_SPORTS]  || 0) - 1)
+  earnedByCategory[categories.FREE_SELECT] = lang1Over + lang2Over + hsOver
+
+  // Step 4: 各要件の earned/countable を算出
+  const results = requirements.map((req) => {
+    const earned = earnedByCategory[req.category] || 0
+    const countable =
+      req.maxCountableCredits !== null
+        ? Math.min(earned, req.maxCountableCredits)
+        : earned
+    return { ...req, earned, countable }
+  })
+
+  // Step 5: totalEarned の算出
+  // excludeFromTotal な要件は二重カウントしない。
+  // 人文・社会・自然・総合の4カテゴリは HSN_TOTAL の countable(最大12)で代表させる。
+  const excludedCats = new Set([
+    categories.LIBERAL_HS_INNER,
+    categories.LIBERAL_HUMANITIES,
+    categories.LIBERAL_SOCIAL,
+    categories.LIBERAL_NATURAL,
+    categories.LIBERAL_INTEGRATED,
+  ])
+
+  let totalEarned = 0
+  for (const r of results) {
+    if (r.excludeFromTotal) continue
+    if (excludedCats.has(r.category)) continue
+    totalEarned += r.countable
+  }
+
+  return {
+    results,
+    totalEarned,
+    totalRequired,
+    nestedRequirements: {
+      hsInnerEarned:    hsInner,
+      hsInnerSatisfied: hsInner >= 8,
+      hsnTotalEarned:   hsnTotal,
+      hsnTotalSatisfied: hsnTotal >= 12,
+    },
+  }
+}
+
+// ============================================================================
+// 公開 API
+// ============================================================================
+
+/**
+ * 単位集計を計算する
+ *
+ * @param {Array} userCredits  - Supabase の user_credits レコード配列
+ * @param {{
+ *   key: string,
+ *   courses: Array,
+ *   categories: object,
+ *   requirements: Array,
+ *   totalRequired: number,
+ * }} curriculum - getCurriculum() の返り値
+ *
+ * @returns {{
+ *   results: Array,           // 要件ごとの集計行
+ *   totalEarned: number,      // 卒業要件にカウントされる総単位
+ *   totalRequired: number,    // 卒業必要単位
+ *   nestedRequirements: object|null, // 2025制度専用の入れ子要件情報
+ * }}
+ */
+export function calcSummary(userCredits, curriculum) {
+  const { key, courses, categories, requirements, totalRequired } = curriculum
+  const passed = filterPassed(userCredits)
+
+  if (key === '2025') {
+    return calcNew2025(passed, courses, requirements, categories, totalRequired)
+  }
+  return calcOld(passed, courses, requirements, totalRequired)
+}

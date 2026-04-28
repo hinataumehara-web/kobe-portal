@@ -107,5 +107,22 @@ export function useAuth() {
     return data
   }
 
-  return { session, profile, loading, signIn, signOut, createProfile }
+  /**
+   * 入学年度を更新する(入学年度選択モーダルから呼ばれる)
+   * @param {number} year - 選択した入学年度(2024 or 2025)
+   */
+  async function updateAdmissionYear(year) {
+    if (!session) throw new Error('未ログインです')
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({ admission_year: year })
+      .eq('id', session.user.id)
+      .select()
+      .single()
+
+    if (error) throw error
+    setProfile(data)
+  }
+
+  return { session, profile, loading, signIn, signOut, createProfile, updateAdmissionYear }
 }

@@ -7,10 +7,23 @@ import BottomNav from './BottomNav.jsx'
  * PC: Header + Sidebar + コンテンツ
  * モバイル: Header + コンテンツ + BottomNav
  */
-export default function PortalLayout({ profile, page, onNavigate, onSignOut, children }) {
+export default function PortalLayout({
+  profile,
+  page,
+  onNavigate,
+  onSignOut,
+  curriculumLabel,
+  onChangeCurriculum,
+  children,
+}) {
   return (
     <div className="flex flex-col h-screen">
-      <Header profile={profile} onSignOut={onSignOut} />
+      <Header
+        profile={profile}
+        onSignOut={onSignOut}
+        curriculumLabel={curriculumLabel}
+        onChangeCurriculum={onChangeCurriculum}
+      />
 
       <div className="flex flex-1 overflow-hidden">
         <Sidebar page={page} onNavigate={onNavigate} />

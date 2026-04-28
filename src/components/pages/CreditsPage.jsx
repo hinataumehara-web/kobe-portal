@@ -1,19 +1,22 @@
 import { useState } from 'react'
-import { courses, SUBCATEGORIES } from '../../data/courses.js'
+import { useCurriculum } from '../../hooks/useCurriculum.js'
 
 const GRADES = ['未履修', '秀', '優', '良', '可', '不可']
 
-const BADGE = {
-  [SUBCATEGORIES.REQUIRED]: 'bg-amber-100 text-amber-700',
-  [SUBCATEGORIES.ELECTIVE]: 'bg-blue-100 text-blue-700',
-  [SUBCATEGORIES.FREE]:     'bg-gray-100 text-gray-500',
-}
-
 /**
- * 成績入力ページ
+ * 成績入力ページ — カリキュラムに応じた科目リストで成績入力
  * @param {{ credits: Array, updateGrade: Function, loading: boolean, showToast: Function }} props
  */
 export default function CreditsPage({ credits, updateGrade, loading, showToast }) {
+  const curriculum = useCurriculum()
+  const { courses, subcategories } = curriculum
+
+  const BADGE = {
+    [subcategories.REQUIRED]: 'bg-amber-100 text-amber-700',
+    [subcategories.ELECTIVE]: 'bg-blue-100 text-blue-700',
+    [subcategories.FREE]:     'bg-gray-100 text-gray-500',
+  }
+
   const [saving, setSaving] = useState(null) // 保存中の courseId
 
   async function handleGradeChange(courseId, grade) {

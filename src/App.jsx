@@ -4,11 +4,13 @@ import { useAuth }       from './hooks/useAuth.js'
 import { useCredits }    from './hooks/useCredits.js'
 import { usePastExams }  from './hooks/usePastExams.js'
 import { useCourseInfo } from './hooks/useCourseInfo.js'
+import { getCurriculum } from './data/curriculum.js'
 
-import LoginForm     from './components/auth/LoginForm.jsx'
-import MagicLinkSent from './components/auth/MagicLinkSent.jsx'
-import ProfileSetup  from './components/auth/ProfileSetup.jsx'
-import PortalLayout  from './components/layout/PortalLayout.jsx'
+import LoginForm          from './components/auth/LoginForm.jsx'
+import MagicLinkSent      from './components/auth/MagicLinkSent.jsx'
+import ProfileSetup       from './components/auth/ProfileSetup.jsx'
+import AdmissionYearModal from './components/auth/AdmissionYearModal.jsx'
+import PortalLayout       from './components/layout/PortalLayout.jsx'
 import { useToast, ToastContainer } from './components/Toast.jsx'
 
 import HomePage       from './components/pages/HomePage.jsx'
@@ -19,17 +21,24 @@ import CreditsPage    from './components/pages/CreditsPage.jsx'
 import SummaryPage    from './components/pages/SummaryPage.jsx'
 
 export default function App() {
-  const { session, profile, loading: authLoading, signIn, signOut, createProfile } = useAuth()
+  const { session, profile, loading: authLoading, signIn, signOut, createProfile, updateAdmissionYear } = useAuth()
   const { credits, loading: creditsLoading, updateGrade } = useCredits(profile?.id)
   const { exams, loading: examsLoading, uploadExam, getDownloadUrl, deleteExam } = usePastExams()
   const { courseInfos, loading: courseInfoLoading, submitCourseInfo, deleteCourseInfo } = useCourseInfo()
 
-  const [page,             setPage]             = useState('home')
-  const [sentEmail,        setSentEmail]        = useState('')
-  const [pastExamsFilter,  setPastExamsFilter]  = useState(null) // 授業情報→過去問の絞り込み用
-  const { toasts, showToast }                   = useToast()
+  const [page,               setPage]               = useState('home')
+  const [sentEmail,          setSentEmail]          = useState('')
+  const [pastExamsFilter,    setPastExamsFilter]    = useState(null)
+  const [showCurriculumModal, setShowCurriculumModal] = useState(false)
+  const { toasts, showToast }                       = useToast()
 
-  // 授業情報ページから過去問ページへ遷移するハンドラ
+  // 入学年度未設定チェック
+  const needsAdmissionYear = !!profile && profile.admission_year == null
+
+  // カリキュラムデータ(モーダル外でも使用)
+  const curriculum = getCurriculum(profile?.admission_year)
+
+  // 授業情報 → 過去問ページへ遷移
   function navigateToExams(courseId) {
     setPastExamsFilter(courseId)
     setPage('exams')
@@ -39,6 +48,12 @@ export default function App() {
   function handleNavigate(p) {
     if (p !== 'exams') setPastExamsFilter(null)
     setPage(p)
+  }
+
+  // 入学年度を保存してモーダルを閉じる
+  async function handleAdmissionYearSelect(year) {
+    await updateAdmissionYear(year)
+    setShowCurriculumModal(false)
   }
 
   // ── ローディング中 ──────────────────────────────────────────
@@ -145,10 +160,22 @@ export default function App() {
         page={page}
         onNavigate={handleNavigate}
         onSignOut={signOut}
+        curriculumLabel={curriculum.label}
+        onChangeCurriculum={() => setShowCurriculumModal(true)}
       >
         {renderPage()}
       </PortalLayout>
+
       <ToastContainer toasts={toasts} />
+
+      {/* 入学年度選択モーダル — 未設定の場合は強制表示、切り替え時は任意 */}
+      {(needsAdmissionYear || showCurriculumModal) && (
+        <AdmissionYearModal
+          currentYear={needsAdmissionYear ? null : profile.admission_year}
+          onSelect={handleAdmissionYearSelect}
+          onClose={needsAdmissionYear ? undefined : () => setShowCurriculumModal(false)}
+        />
+      )}
     </>
   )
 }

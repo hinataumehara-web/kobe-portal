@@ -2,8 +2,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell
 } from 'recharts'
 import { calcSummary } from '../../lib/creditCalc.js'
-import { courses } from '../../data/courses.js'
-import { TOTAL_REQUIRED_CREDITS } from '../../data/requirements.js'
+import { useCurriculum } from '../../hooks/useCurriculum.js'
 
 const CRIMSON = '#4e8b68'
 const GREEN   = '#6aaa82'
@@ -12,12 +11,13 @@ const GREEN   = '#6aaa82'
  * ホーム(ダッシュボード)ページ
  */
 export default function HomePage({ profile, credits, recentExams, onNavigate }) {
-  const { results, totalEarned } = calcSummary(credits, courses)
-  const pct = Math.min(100, Math.round((totalEarned / TOTAL_REQUIRED_CREDITS) * 100))
+  const curriculum = useCurriculum()
+  const { results, totalEarned, totalRequired } = calcSummary(credits, curriculum)
+  const pct = Math.min(100, Math.round((totalEarned / totalRequired) * 100))
 
   // 教養系・専門系グラフデータ
   const chartData = ['教養', '専門'].map((group) => {
-    const rows = results.filter((r) => r.group === group)
+    const rows = results.filter((r) => r.group === group && !r.excludeFromTotal)
     const earned   = rows.reduce((s, r) => s + r.countable, 0)
     const required = rows.reduce((s, r) => s + r.requiredCredits, 0)
     return { name: `${group}系`, earned, required }
@@ -36,7 +36,7 @@ export default function HomePage({ profile, credits, recentExams, onNavigate }) 
           <span className="text-sm font-medium text-gray-600">卒業単位の進捗</span>
           <span className="text-3xl font-bold" style={{ color: CRIMSON }}>
             {totalEarned}
-            <span className="text-base font-normal text-gray-400"> / {TOTAL_REQUIRED_CREDITS} 単位</span>
+            <span className="text-base font-normal text-gray-400"> / {totalRequired} 単位</span>
           </span>
         </div>
         <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden">
@@ -46,7 +46,7 @@ export default function HomePage({ profile, credits, recentExams, onNavigate }) 
           />
         </div>
         <div className="flex justify-between mt-1">
-          <span className="text-xs text-gray-400">残り {Math.max(0, TOTAL_REQUIRED_CREDITS - totalEarned)} 単位</span>
+          <span className="text-xs text-gray-400">残り {Math.max(0, totalRequired - totalEarned)} 単位</span>
           <span className="text-xs font-medium" style={{ color: CRIMSON }}>{pct}%</span>
         </div>
       </div>
