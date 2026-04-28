@@ -175,6 +175,10 @@ export const courses = [
   { id: "OD014", name: "花卉園芸学1", credits: 1, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
   { id: "OD015", name: "花卉園芸学2", credits: 1, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
   { id: "OD016", name: "造園学", credits: 2, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
+  { id: "OD017", name: "動物資源学1", credits: 1, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
+  { id: "OD018", name: "動物資源学2", credits: 1, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
+  { id: "OD019", name: "植物栄養学", credits: 2, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
+  { id: "OD020", name: "作物進化学", credits: 2, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
 
   // ==========================================================================
   // 高度教養科目(自コース指定)- 2単位必要

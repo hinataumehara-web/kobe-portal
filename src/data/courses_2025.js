@@ -457,5 +457,9 @@ export const courses = [
   { id: "OD013", name: "産業資源植物学", credits: 2, category: CAT.PRO_RELATED, subcategory: E, isFacultyDesignated: false, year: null, semester: "後期", teacher: "畠中　知子",  syllabus: null, evaluation: null, note: "他学科開講" },
   { id: "OD014", name: "花卉園芸学1",   credits: 1, category: CAT.PRO_RELATED, subcategory: E, isFacultyDesignated: false, year: null, semester: null,   teacher: null,          syllabus: null, evaluation: null, note: "他学科開講" },
   { id: "OD015", name: "花卉園芸学2",   credits: 1, category: CAT.PRO_RELATED, subcategory: E, isFacultyDesignated: false, year: null, semester: null,   teacher: null,          syllabus: null, evaluation: null, note: "他学科開講" },
-  { id: "OD016", name: "造園学",         credits: 2, category: CAT.PRO_RELATED, subcategory: E, isFacultyDesignated: false, year: null, semester: null,   teacher: null,          syllabus: null, evaluation: null, note: "他学科開講" },
+  { id: "OD016", name: "造園学",         credits: 2, category: CAT.PRO_RELATED, subcategory: E, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: "他学科開講" },
+  { id: "OD017", name: "動物資源学1",   credits: 1, category: CAT.PRO_RELATED, subcategory: E, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: "他学科開講" },
+  { id: "OD018", name: "動物資源学2",   credits: 1, category: CAT.PRO_RELATED, subcategory: E, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: "他学科開講" },
+  { id: "OD019", name: "植物栄養学",     credits: 2, category: CAT.PRO_RELATED, subcategory: E, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: "他学科開講" },
+  { id: "OD020", name: "作物進化学",     credits: 2, category: CAT.PRO_RELATED, subcategory: E, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: "他学科開講" },
 ]
