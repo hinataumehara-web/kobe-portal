@@ -9,7 +9,10 @@
       "Bash(vercel --yes)",
       "Bash(vercel --yes --name kobe-portal)",
       "Bash(vercel env *)",
-      "Bash(vercel --prod)"
+      "Bash(vercel --prod)",
+      "Bash(node --input-type=module)",
+      "Bash(curl -s http://localhost:5173)",
+      "Bash(pkill -f \"vite\")"
     ]
   }
 }

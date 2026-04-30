@@ -58,6 +58,7 @@ export const CATEGORIES = {
   // ===== 専門系 =====
   COMMON_PRO_BASIC: "共通専門基礎科目",                   // 選択16単位必要
   PRO_FACULTY_COMMON: "学部共通科目",                     // 専門必修の一部
+  SEMINAR: "初年次セミナー", 　　　　　　　　　　　　　　　　　//初年次セミナー（1単位）
   PRO_DEPT_COMMON: "学科共通科目",                        // 専門必修の一部
   PRO_COURSE: "食料環境経済学コース開講科目",             // 専門必修+選択
   PRO_OTHER_COURSE: "他コース開講科目",                   // 選択
@@ -108,8 +109,8 @@ export const courses = [
   { id: "FC005", name: "農場と食卓をつなぐフィールド演習", credits: 1, category: CATEGORIES.PRO_FACULTY_COMMON, subcategory: SUBCATEGORIES.ELECTIVE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
   { id: "FC006", name: "食の安全科学実践検査学", credits: 1, category: CATEGORIES.PRO_FACULTY_COMMON, subcategory: SUBCATEGORIES.ELECTIVE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
   { id: "FC007", name: "食の安全科学技術演習", credits: 2, category: CATEGORIES.PRO_FACULTY_COMMON, subcategory: SUBCATEGORIES.ELECTIVE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
-  { id: "FC008", name: "初年次セミナー", credits: 1, category: CATEGORIES.PRO_FACULTY_COMMON, subcategory: SUBCATEGORIES.REQUIRED, isFacultyDesignated: false, year: 1, semester: "前期", teacher: "東　哲司", syllabus: null, evaluation: null, note: null, isPassFail: true },
-  { id: "FC009", name: "English for Agricultural Science", credits: null, category: CATEGORIES.PRO_FACULTY_COMMON, subcategory: SUBCATEGORIES.REQUIRED, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: "単位数要確認" },
+  { id: "FC008", name: "初年次セミナー", credits: 1, category: CATEGORIES.SEMINAR, subcategory: SUBCATEGORIES.REQUIRED, isFacultyDesignated: false, year: 1, semester: "前期", teacher: "東　哲司", syllabus: null, evaluation: null, note: null, isPassFail: true },
+  { id: "FC009", name: "English for Agricultural Science", credits: 2, category: CATEGORIES.PRO_FACULTY_COMMON, subcategory: SUBCATEGORIES.ELECTIVE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: "単位数要確認" },
 
   // ==========================================================================
   // 学科共通科目
@@ -153,32 +154,42 @@ export const courses = [
   { id: "OC002", name: "地域計画論", credits: 2, category: CATEGORIES.PRO_OTHER_COURSE, subcategory: SUBCATEGORIES.ELECTIVE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
   { id: "OC003", name: "土地改良法", credits: 2, category: CATEGORIES.PRO_OTHER_COURSE, subcategory: SUBCATEGORIES.ELECTIVE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
   { id: "OC004", name: "バイオシステム工学特別講義B", credits: 2, category: CATEGORIES.PRO_OTHER_COURSE, subcategory: SUBCATEGORIES.ELECTIVE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
+  { id: "OD001", name: "食用作物学", credits: 2, category: CATEGORIES.PRO_OTHER_COURSE, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: "前期", teacher: "深山　浩", syllabus: null, evaluation: null, note: null },
+  { id: "OD002", name: "果樹園芸学", credits: 2, category: CATEGORIES.PRO_OTHER_COURSE, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: "後期", teacher: "安田　剛志", syllabus: null, evaluation: null, note: null },
+  { id: "OD003", name: "野菜園芸学1", credits: 1, category: CATEGORIES.PRO_OTHER_COURSE, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: "前期", teacher: "宇野　雄一", syllabus: null, evaluation: null, note: null },
+  { id: "OD004", name: "野菜園芸学2", credits: 1, category: CATEGORIES.PRO_OTHER_COURSE, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: "前期", teacher: "宇野　雄一", syllabus: null, evaluation: null, note: null },
+  { id: "OD005", name: "森林生態学", credits: 2, category: CATEGORIES.PRO_OTHER_COURSE, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
+  { id: "OD006", name: "基礎昆虫学A", credits: 1, category: CATEGORIES.PRO_OTHER_COURSE, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: "前期", teacher: "杉浦　真治", syllabus: null, evaluation: null, note: null },
+  { id: "OD007", name: "基礎昆虫学B", credits: 1, category: CATEGORIES.PRO_OTHER_COURSE, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: "前期", teacher: "坂本　克彦", syllabus: null, evaluation: null, note: null },
+  { id: "OD008", name: "基礎植物病理学", credits: 2, category: CATEGORIES.PRO_OTHER_COURSE, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: "後期", teacher: "池田　健一", syllabus: null, evaluation: null, note: null },
+  { id: "OD009", name: "植物育種学", credits: 2, category: CATEGORIES.PRO_OTHER_COURSE, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: "後期", teacher: "石井　尊生", syllabus: null, evaluation: null, note: null },
+  { id: "OD010", name: "園芸栽培学1", credits: 1, category: CATEGORIES.PRO_OTHER_COURSE, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: "後期", teacher: "宇野　雄一", syllabus: null, evaluation: null, note: null },
+  { id: "OD011", name: "園芸栽培学2", credits: 1, category: CATEGORIES.PRO_OTHER_COURSE, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
+  { id: "OD012", name: "園芸植物繁殖学", credits: 2, category: CATEGORIES.PRO_OTHER_COURSE, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
+  { id: "OD013", name: "産業資源植物学", credits: 2, category: CATEGORIES.PRO_OTHER_COURSE, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: "後期", teacher: "畠中　知子", syllabus: null, evaluation: null, note: null },
+  { id: "OD014", name: "花卉園芸学1", credits: 1, category: CATEGORIES.PRO_OTHER_COURSE, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
+  { id: "OD015", name: "花卉園芸学2", credits: 1, category: CATEGORIES.PRO_OTHER_COURSE, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
+  { id: "OD016", name: "造園学", credits: 2, category: CATEGORIES.PRO_OTHER_COURSE, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
 
   // ==========================================================================
   // 他学科開講科目(自由科目、農学部開講扱い)- 参考リスト
   // ※自由科目はユーザー自由入力方式のため、このセクションは参考用。
   // ※単位計算上は PRO_FREE_AGRI カテゴリで最大8単位まで算入。
   // ==========================================================================
-  { id: "OD001", name: "食用作物学", credits: 2, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: "前期", teacher: "深山　浩", syllabus: null, evaluation: null, note: null },
-  { id: "OD002", name: "果樹園芸学", credits: 2, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: "後期", teacher: "安田　剛志", syllabus: null, evaluation: null, note: null },
-  { id: "OD003", name: "野菜園芸学1", credits: 1, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: "前期", teacher: "宇野　雄一", syllabus: null, evaluation: null, note: null },
-  { id: "OD004", name: "野菜園芸学2", credits: 1, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: "前期", teacher: "宇野　雄一", syllabus: null, evaluation: null, note: null },
-  { id: "OD005", name: "森林生態学", credits: 2, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
-  { id: "OD006", name: "基礎昆虫学A", credits: 1, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: "前期", teacher: "杉浦　真治", syllabus: null, evaluation: null, note: null },
-  { id: "OD007", name: "基礎昆虫学B", credits: 1, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: "前期", teacher: "坂本　克彦", syllabus: null, evaluation: null, note: null },
-  { id: "OD008", name: "基礎植物病理学", credits: 2, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: "後期", teacher: "池田　健一", syllabus: null, evaluation: null, note: null },
-  { id: "OD009", name: "植物育種学", credits: 2, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: "後期", teacher: "石井　尊生", syllabus: null, evaluation: null, note: null },
-  { id: "OD010", name: "園芸栽培学1", credits: 1, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: "後期", teacher: "宇野　雄一", syllabus: null, evaluation: null, note: null },
-  { id: "OD011", name: "園芸栽培学2", credits: 1, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
-  { id: "OD012", name: "園芸植物繁殖学", credits: 2, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
-  { id: "OD013", name: "産業資源植物学", credits: 2, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: "後期", teacher: "畠中　知子", syllabus: null, evaluation: null, note: null },
-  { id: "OD014", name: "花卉園芸学1", credits: 1, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
-  { id: "OD015", name: "花卉園芸学2", credits: 1, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
-  { id: "OD016", name: "造園学", credits: 2, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
   { id: "OD017", name: "動物資源学1", credits: 1, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
   { id: "OD018", name: "動物資源学2", credits: 1, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
   { id: "OD019", name: "植物栄養学", credits: 2, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
   { id: "OD020", name: "作物進化学", credits: 2, category: CATEGORIES.PRO_FREE_AGRI, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
+
+  //他学部開校自由科目（上限2単位）
+  { id: "HS001", name: "健康・スポーツ科学講義A", credits: 1, category: CATEGORIES.PRO_FREE_OTHER, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
+  { id: "HS002", name: "健康・スポーツ科学講義B", credits: 1, category: CATEGORIES.PRO_FREE_OTHER, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
+  { id: "HS004", name: "健康・スポーツ科学実習1", credits: 0.5, category: CATEGORIES.PRO_FREE_OTHER, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: "後期", teacher: "秋元　忍", syllabus: null, evaluation: null, note: null },
+  { id: "HS005", name: "健康・スポーツ科学実習2", credits: 0.5, category: CATEGORIES.PRO_FREE_OTHER, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: "後期", teacher: "秋元　忍", syllabus: null, evaluation: null, note: null },
+  { id: "OH001", name: "総合科目Ⅰ", credits: 1, category: CATEGORIES.PRO_FREE_OTHER, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
+  { id: "OH002", name: "総合科目Ⅱ", credits: 1, category: CATEGORIES.PRO_FREE_OTHER, subcategory: SUBCATEGORIES.FREE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
+
+
 
   // ==========================================================================
   // 高度教養科目(自コース指定)- 2単位必要
@@ -210,7 +221,7 @@ export const courses = [
   { id: "GL003", name: "社会基礎学(グローバル人材に不可欠な教養)", credits: 2, category: CATEGORIES.GENERAL_LIBERAL, subcategory: SUBCATEGORIES.ELECTIVE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: "キャリア科目" },
   { id: "GL004", name: "ボランティアと社会貢献活動A", credits: 1, category: CATEGORIES.GENERAL_LIBERAL, subcategory: SUBCATEGORIES.ELECTIVE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: "キャリア科目" },
   { id: "GL005", name: "ボランティアと社会貢献活動B", credits: 1, category: CATEGORIES.GENERAL_LIBERAL, subcategory: SUBCATEGORIES.ELECTIVE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: "キャリア科目" },
-  { id: "GL006", name: "グローバルチャレンジ実習", credits: 1, category: CATEGORIES.GENERAL_LIBERAL, subcategory: SUBCATEGORIES.ELECTIVE, isFacultyDesignated: false, year: null, semester: "後期", teacher: "金丸　研吾", syllabus: null, evaluation: null, note: "キャリア科目 / 1又は2単位" },
+  { id: "GL006", name: "グローバルチャレンジ実習", credits: 2, category: CATEGORIES.GENERAL_LIBERAL, subcategory: SUBCATEGORIES.ELECTIVE, isFacultyDesignated: false, year: null, semester: "後期", teacher: "金丸　研吾", syllabus: null, evaluation: null, note: "キャリア科目 / 1又は2単位" },
   // 神戸学
   { id: "GL007", name: "神戸大学史A", credits: 1, category: CATEGORIES.GENERAL_LIBERAL, subcategory: SUBCATEGORIES.ELECTIVE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: "神戸学" },
   { id: "GL008", name: "神戸大学史B", credits: 1, category: CATEGORIES.GENERAL_LIBERAL, subcategory: SUBCATEGORIES.ELECTIVE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: "神戸学" },
@@ -320,11 +331,7 @@ export const courses = [
   // ==========================================================================
   // 健康・スポーツ科学 - 1単位必要
   // ==========================================================================
-  { id: "HS001", name: "健康・スポーツ科学講義A", credits: 1, category: CATEGORIES.HEALTH_SPORTS, subcategory: SUBCATEGORIES.ELECTIVE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
-  { id: "HS002", name: "健康・スポーツ科学講義B", credits: 1, category: CATEGORIES.HEALTH_SPORTS, subcategory: SUBCATEGORIES.ELECTIVE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
   { id: "HS003", name: "健康・スポーツ科学実習基礎", credits: 1, category: CATEGORIES.HEALTH_SPORTS, subcategory: SUBCATEGORIES.REQUIRED, isFacultyDesignated: false, year: null, semester: "前期", teacher: "秋元　忍", syllabus: null, evaluation: null, note: null },
-  { id: "HS004", name: "健康・スポーツ科学実習1", credits: 0.5, category: CATEGORIES.HEALTH_SPORTS, subcategory: SUBCATEGORIES.ELECTIVE, isFacultyDesignated: false, year: null, semester: "後期", teacher: "秋元　忍", syllabus: null, evaluation: null, note: null },
-  { id: "HS005", name: "健康・スポーツ科学実習2", credits: 0.5, category: CATEGORIES.HEALTH_SPORTS, subcategory: SUBCATEGORIES.ELECTIVE, isFacultyDesignated: false, year: null, semester: "後期", teacher: "秋元　忍", syllabus: null, evaluation: null, note: null },
 
   // ==========================================================================
   // 基礎教養科目 - 6単位必要

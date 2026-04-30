@@ -26,26 +26,27 @@ import { CATEGORIES } from "./courses.js";
 
 export const REQUIREMENTS = [
   // --- 教養系 ---
-  { category: CATEGORIES.BASIC_LIBERAL,           requiredCredits: 6, maxCountableCredits: null, group: "教養", description: "基礎教養科目" },
-  { category: CATEGORIES.GENERAL_LIBERAL,         requiredCredits: 6, maxCountableCredits: null, group: "教養", description: "総合教養科目" },
-  { category: CATEGORIES.FOREIGN_LANG_1,          requiredCredits: 4, maxCountableCredits: null, group: "教養", description: "外国語科目Ⅰ" },
-  { category: CATEGORIES.FOREIGN_LANG_2,          requiredCredits: 4, maxCountableCredits: null, group: "教養", description: "外国語科目Ⅱ" },
-  { category: CATEGORIES.INFO,                    requiredCredits: 1, maxCountableCredits: null, group: "教養", description: "情報科目" },
-  { category: CATEGORIES.HEALTH_SPORTS,           requiredCredits: 1, maxCountableCredits: null, group: "教養", description: "健康・スポーツ科学" },
+  { category: CATEGORIES.BASIC_LIBERAL, requiredCredits: 6, maxCountableCredits: null, group: "教養", description: "基礎教養科目" },
+  { category: CATEGORIES.GENERAL_LIBERAL, requiredCredits: 6, maxCountableCredits: null, group: "教養", description: "総合教養科目" },
+  { category: CATEGORIES.FOREIGN_LANG_1, requiredCredits: 4, maxCountableCredits: null, group: "教養", description: "外国語科目Ⅰ" },
+  { category: CATEGORIES.FOREIGN_LANG_2, requiredCredits: 4, maxCountableCredits: null, group: "教養", description: "外国語科目Ⅱ" },
+  { category: CATEGORIES.INFO, requiredCredits: 1, maxCountableCredits: null, group: "教養", description: "情報科目" },
+  { category: CATEGORIES.HEALTH_SPORTS, requiredCredits: 1, maxCountableCredits: null, group: "教養", description: "健康・スポーツ科学" },
   { category: CATEGORIES.ADVANCED_LIBERAL_COURSE, requiredCredits: 2, maxCountableCredits: null, group: "教養", description: "高度教養科目(自コース指定)" },
-  { category: CATEGORIES.ADVANCED_LIBERAL_OTHER,  requiredCredits: 2, maxCountableCredits: null, group: "教養", description: "高度教養科目(その他)" },
+  { category: CATEGORIES.ADVANCED_LIBERAL_OTHER, requiredCredits: 2, maxCountableCredits: null, group: "教養", description: "高度教養科目(その他)" },
 
   // --- 共通専門基礎(16単位必要)---
-  { category: CATEGORIES.COMMON_PRO_BASIC,        requiredCredits: 16, maxCountableCredits: null, group: "専門", description: "共通専門基礎科目 選択" },
+  { category: CATEGORIES.COMMON_PRO_BASIC, requiredCredits: 16, maxCountableCredits: null, group: "専門", description: "共通専門基礎科目 選択" },
 
   // --- 専門科目(合計84単位)---
   // 内訳: 必修48 + 選択26 + 自由10
   // 必修48 = 学部共通必修5 + 学科共通必修16 + コース開講必修27
-  { category: CATEGORIES.PRO_FACULTY_COMMON,      requiredCredits: 5,  maxCountableCredits: null, group: "専門", description: "学部共通科目 必修(初年次セミナー1 + 食の倫理2 + 緑の保全2)" },
-  { category: CATEGORIES.PRO_DEPT_COMMON,         requiredCredits: 16, maxCountableCredits: null, group: "専門", description: "学科共通科目 必修(概論ⅠⅡⅢ各2 + 卒業研究10)" },
-  { category: CATEGORIES.PRO_COURSE,              requiredCredits: 53, maxCountableCredits: null, group: "専門", description: "コース開講科目 必修27 + 選択26(他コース開講含む)" },
-  { category: CATEGORIES.PRO_FREE_AGRI,           requiredCredits: 0,  maxCountableCredits: 8,  group: "専門", description: "自由科目(農学部開講)最大8単位" },
-  { category: CATEGORIES.PRO_FREE_OTHER,          requiredCredits: 0,  maxCountableCredits: 2,  group: "専門", description: "自由科目(他学部開講)最大2単位" },
+  { category: CATEGORIES.PRO_FACULTY_COMMON, requiredCredits: 5, maxCountableCredits: null, group: "専門", description: "学部共通科目 必修(初年次セミナー1 + 食の倫理2 + 緑の保全2)" },
+  { category: CATEGORIES.PRO_DEPT_COMMON, requiredCredits: 15, maxCountableCredits: null, group: "専門", description: "学科共通科目 必修(概論ⅠⅡⅢ各2 + 卒業研究10)" },
+  { category: CATEGORIES.SEMINAR, requiredCredits: 1, maxCountableCredits: null, group: "専門", description: "初年次セミナー 必修(1単位)" },
+  { category: CATEGORIES.PRO_COURSE, requiredCredits: 53, maxCountableCredits: null, group: "専門", description: "コース開講科目 必修27 + 選択26(他コース開講含む)" },
+  { category: CATEGORIES.PRO_FREE_AGRI, requiredCredits: 0, maxCountableCredits: 8, group: "専門", description: "自由科目(農学部開講)最大8単位" },
+  { category: CATEGORIES.PRO_FREE_OTHER, requiredCredits: 0, maxCountableCredits: 2, group: "専門", description: "自由科目(他学部開講)最大2単位" },
 ];
 
 export const TOTAL_REQUIRED_CREDITS = 126;
