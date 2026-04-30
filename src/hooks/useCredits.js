@@ -48,7 +48,7 @@ export function useCredits(userId) {
       grade,
       updated_at: new Date().toISOString(),
       completed_at:
-        grade !== '未履修' && grade !== '不可'
+        grade !== '未履修' && grade !== '不可' && grade !== '不合格'
           ? new Date().toISOString()
           : null,
       ...extra,

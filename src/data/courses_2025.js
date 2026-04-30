@@ -49,7 +49,7 @@ export const courses = [
   // ==========================================================================
   { id: "BASE001", name: "教養とは何か",         credits: 1, category: CAT.LIBERAL_BASE, subcategory: R, isFacultyDesignated: false, year: 1, semester: "前期", teacher: null, syllabus: null, evaluation: null, note: null },
   { id: "BASE002", name: "多言語と多文化の世界", credits: 1, category: CAT.LIBERAL_BASE, subcategory: R, isFacultyDesignated: false, year: 1, semester: "前期", teacher: null, syllabus: null, evaluation: null, note: null },
-  { id: "BASE003", name: "情報基礎",             credits: 1, category: CAT.LIBERAL_BASE, subcategory: R, isFacultyDesignated: false, year: 1, semester: "前期", teacher: null, syllabus: null, evaluation: null, note: null },
+  { id: "BASE003", name: "情報基礎",             credits: 1, category: CAT.LIBERAL_BASE, subcategory: R, isFacultyDesignated: false, year: 1, semester: "前期", teacher: null, syllabus: null, evaluation: null, note: null, isPassFail: true },
   { id: "BASE004", name: "データサイエンス基礎学", credits: 1, category: CAT.LIBERAL_BASE, subcategory: R, isFacultyDesignated: false, year: 1, semester: "前期", teacher: null, syllabus: null, evaluation: null, note: null },
 
   // ==========================================================================

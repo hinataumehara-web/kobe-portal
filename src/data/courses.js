@@ -108,7 +108,7 @@ export const courses = [
   { id: "FC005", name: "農場と食卓をつなぐフィールド演習", credits: 1, category: CATEGORIES.PRO_FACULTY_COMMON, subcategory: SUBCATEGORIES.ELECTIVE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
   { id: "FC006", name: "食の安全科学実践検査学", credits: 1, category: CATEGORIES.PRO_FACULTY_COMMON, subcategory: SUBCATEGORIES.ELECTIVE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
   { id: "FC007", name: "食の安全科学技術演習", credits: 2, category: CATEGORIES.PRO_FACULTY_COMMON, subcategory: SUBCATEGORIES.ELECTIVE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
-  { id: "FC008", name: "初年次セミナー", credits: 1, category: CATEGORIES.PRO_FACULTY_COMMON, subcategory: SUBCATEGORIES.REQUIRED, isFacultyDesignated: false, year: 1, semester: "前期", teacher: "東　哲司", syllabus: null, evaluation: null, note: null },
+  { id: "FC008", name: "初年次セミナー", credits: 1, category: CATEGORIES.PRO_FACULTY_COMMON, subcategory: SUBCATEGORIES.REQUIRED, isFacultyDesignated: false, year: 1, semester: "前期", teacher: "東　哲司", syllabus: null, evaluation: null, note: null, isPassFail: true },
   { id: "FC009", name: "English for Agricultural Science", credits: null, category: CATEGORIES.PRO_FACULTY_COMMON, subcategory: SUBCATEGORIES.REQUIRED, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: "単位数要確認" },
 
   // ==========================================================================
@@ -313,7 +313,7 @@ export const courses = [
   // ==========================================================================
   // 情報科目 - 1単位必要
   // ==========================================================================
-  { id: "INFO001", name: "情報基礎", credits: 1, category: CATEGORIES.INFO, subcategory: SUBCATEGORIES.REQUIRED, isFacultyDesignated: false, year: null, semester: "前期", teacher: "村尾　元", syllabus: null, evaluation: null, note: null },
+  { id: "INFO001", name: "情報基礎", credits: 1, category: CATEGORIES.INFO, subcategory: SUBCATEGORIES.REQUIRED, isFacultyDesignated: false, year: null, semester: "前期", teacher: "村尾　元", syllabus: null, evaluation: null, note: null, isPassFail: true },
   { id: "INFO002", name: "情報科学1", credits: 1, category: CATEGORIES.INFO, subcategory: SUBCATEGORIES.ELECTIVE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
   { id: "INFO003", name: "情報科学2", credits: 1, category: CATEGORIES.INFO, subcategory: SUBCATEGORIES.ELECTIVE, isFacultyDesignated: false, year: null, semester: null, teacher: null, syllabus: null, evaluation: null, note: null },
 

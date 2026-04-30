@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useCurriculum } from '../../hooks/useCurriculum.js'
 
-const GRADES = ['未履修', '秀', '優', '良', '可', '不可']
+const GRADES         = ['未履修', '秀', '優', '良', '可', '不可']
+const GRADES_PASSFAIL = ['未履修', '合格', '不合格']
 
 /**
  * 成績入力ページ — カリキュラムに応じた科目リストで成績入力
@@ -80,7 +81,7 @@ export default function CreditsPage({ credits, updateGrade, loading, showToast }
                             : 'text-gray-700 border-gray-400'
                         } disabled:opacity-50`}
                       >
-                        {GRADES.map((g) => (
+                        {(course.isPassFail ? GRADES_PASSFAIL : GRADES).map((g) => (
                           <option key={g} value={g}>{g}</option>
                         ))}
                       </select>

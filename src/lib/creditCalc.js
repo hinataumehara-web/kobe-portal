@@ -11,12 +11,17 @@ export const GRADE_WEIGHTS = { 秀: 4, 優: 3, 良: 2, 可: 1, 不可: 0 }
 // 旧制度の自由入力カテゴリ
 const OLD_FREE_CATS = new Set(['自由科目(農学部開講)', '自由科目(他学部開講)'])
 
+/** 単位取得とみなさないグレード */
+const FAILED_GRADES = new Set(['不可', '未履修', '不合格'])
+
 /**
- * 合格扱いのレコードを抽出する
+ * 単位取得済みのレコードを抽出する
+ * 秀/優/良/可 + 合格 → 取得済み
+ * 不可/未履修/不合格 → 未取得
  */
 function filterPassed(userCredits) {
   return userCredits.filter(
-    (uc) => uc.grade && uc.grade !== '不可' && uc.grade !== '未履修'
+    (uc) => uc.grade && !FAILED_GRADES.has(uc.grade)
   )
 }
 

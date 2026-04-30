@@ -43,7 +43,7 @@ create table if not exists public.user_credits (
   custom_name     text,
   custom_category text,
   custom_credits  numeric,
-  grade           text check (grade in ('秀','優','良','可','不可','未履修'))
+  grade           text check (grade in ('秀','優','良','可','不可','未履修','合格','不合格'))
                        not null default '未履修',
   acad_year       integer,
   semester        text check (semester in ('前期','後期','通年')),
@@ -53,6 +53,13 @@ create table if not exists public.user_credits (
 );
 
 alter table public.user_credits enable row level security;
+
+-- grade の CHECK 制約を「合格/不合格」を許容するよう更新(冪等)
+alter table public.user_credits
+  drop constraint if exists user_credits_grade_check;
+alter table public.user_credits
+  add constraint user_credits_grade_check
+  check (grade in ('秀','優','良','可','不可','未履修','合格','不合格'));
 
 drop policy if exists "自分の履修データのみ操作可" on public.user_credits;
 create policy "自分の履修データのみ操作可"
