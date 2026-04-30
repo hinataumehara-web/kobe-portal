@@ -54,11 +54,26 @@ export function useCredits(userId) {
       ...extra,
     }
 
-    const { data, error } = await supabase
-      .from('user_credits')
-      .upsert(record, { onConflict: 'user_id,course_id' })
-      .select()
-      .single()
+    // ローカル state で既存レコードを確認し、INSERT / UPDATE を切り替える。
+    // supabase upsert の onConflict は部分インデックスに非対応のためこの方式を使う。
+    const existing = credits.find((c) => c.course_id === courseId)
+
+    let data, error
+    if (existing) {
+      ;({ data, error } = await supabase
+        .from('user_credits')
+        .update(record)
+        .eq('user_id', userId)
+        .eq('course_id', courseId)
+        .select()
+        .single())
+    } else {
+      ;({ data, error } = await supabase
+        .from('user_credits')
+        .insert(record)
+        .select()
+        .single())
+    }
 
     if (error) throw error
 
