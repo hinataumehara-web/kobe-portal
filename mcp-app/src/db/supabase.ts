@@ -1,24 +1,29 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { CourseInfo, PastExam } from "../shared/types.js";
 
-const url = process.env.SUPABASE_URL;
-const key = process.env.SUPABASE_ANON_KEY;
+// トップレベルでは初期化しない。ツール呼び出し時に初めて検証・生成する。
+let _client: SupabaseClient | null = null;
 
-if (!url || !key) {
-  throw new Error(
-    "環境変数 SUPABASE_URL と SUPABASE_ANON_KEY が設定されていません。\n" +
-      ".env を作成するか、Claude Desktop の env 設定を確認してください。"
-  );
+function getClient(): SupabaseClient {
+  if (_client) return _client;
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_ANON_KEY;
+  if (!url || !key) {
+    throw new Error(
+      "環境変数 SUPABASE_URL と SUPABASE_ANON_KEY が設定されていません。\n" +
+        "Claude Desktop の設定ファイル (claude_desktop_config.json) の env セクションを確認してください。"
+    );
+  }
+  _client = createClient(url, key);
+  return _client;
 }
-
-const supabase = createClient(url, key);
 
 export async function fetchCourseInfos(filter: {
   course_id?: string;
   difficulty?: string;
   limit?: number;
 }): Promise<CourseInfo[]> {
-  let q = supabase
+  let q = getClient()
     .from("course_info")
     .select("*")
     .order("created_at", { ascending: false });
@@ -38,7 +43,7 @@ export async function fetchPastExams(filter: {
   year?: number;
   limit?: number;
 }): Promise<PastExam[]> {
-  let q = supabase
+  let q = getClient()
     .from("past_exams")
     .select("*")
     .order("created_at", { ascending: false });
