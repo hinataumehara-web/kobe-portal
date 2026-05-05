@@ -336,9 +336,10 @@ async function main(): Promise<void> {
   }
 }
 
+// パス中のスペースが %20 にエンコードされるため fileURLToPath で正規化して比較する
 const isMain = (() => {
   try {
-    return import.meta.url === `file://${process.argv[1]}`;
+    return fileURLToPath(import.meta.url) === process.argv[1];
   } catch {
     return false;
   }
