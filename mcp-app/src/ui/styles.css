@@ -1,0 +1,354 @@
+/*
+ * ホストが提供する CSS 変数を優先し、フォールバック値を持たせる。
+ */
+:root {
+  color-scheme: light dark;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  background: var(--color-background-primary, #ffffff);
+  color: var(--color-text-primary, #1a1a1a);
+  font-size: var(--font-text-medium-size, 14px);
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+.kp-app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ---- Toolbar ---------------------------------------------------- */
+
+.kp-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--color-background-secondary, #f5f6f8);
+  border-bottom: 1px solid var(--color-border-primary, #e3e5e8);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.kp-toolbar__home {
+  background: transparent;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--border-radius-md, 6px);
+  white-space: nowrap;
+}
+
+.kp-toolbar__home:hover {
+  background: var(--color-background-tertiary, #e9ebef);
+}
+
+.kp-toolbar__subtitle {
+  flex: 1;
+  color: var(--color-text-secondary, #5f6368);
+  font-size: var(--font-text-small-size, 12px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kp-toolbar__busy {
+  font-size: var(--font-text-small-size, 12px);
+  color: var(--color-text-secondary, #6b7079);
+}
+
+/* ---- Main ------------------------------------------------------- */
+
+.kp-main {
+  flex: 1;
+  padding: 16px 18px;
+}
+
+.kp-muted {
+  color: var(--color-text-secondary, #6b7079);
+}
+
+.kp-error-panel {
+  padding: 24px;
+  color: var(--color-text-error, #c4314b);
+}
+
+/* ---- Filters ---------------------------------------------------- */
+
+.kp-filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  align-items: center;
+  font-size: var(--font-text-small-size, 12px);
+}
+
+.kp-filters label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kp-filters select,
+.kp-filters input[type="text"],
+.kp-filters input[type="number"] {
+  padding: 4px 8px;
+  border: 1px solid var(--color-border-primary, #d4d6db);
+  border-radius: var(--border-radius-sm, 4px);
+  background: var(--color-background-primary, #fff);
+}
+
+.kp-filters input[type="text"] {
+  width: 180px;
+}
+
+.kp-filters input[type="number"] {
+  width: 80px;
+}
+
+/* ---- Count badge ------------------------------------------------ */
+
+.kp-count {
+  font-size: var(--font-text-small-size, 11px);
+  color: var(--color-text-secondary, #6b7079);
+  margin-bottom: 8px;
+}
+
+/* ---- Course list ------------------------------------------------ */
+
+.kp-course-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-text-small-size, 13px);
+}
+
+.kp-course-table th {
+  text-align: left;
+  padding: 6px 10px;
+  border-bottom: 2px solid var(--color-border-primary, #d4d6db);
+  color: var(--color-text-secondary, #5f6368);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.kp-course-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--color-border-primary, #e8eaed);
+  vertical-align: top;
+}
+
+.kp-course-table tr:last-child td {
+  border-bottom: none;
+}
+
+.kp-course-table tr:hover td {
+  background: var(--color-background-secondary, #f7f8fa);
+}
+
+.kp-course__name {
+  font-weight: 500;
+}
+
+.kp-course__syllabus {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: var(--color-text-secondary, #6b7079);
+  line-height: 1.4;
+}
+
+/* ---- Badge ------------------------------------------------------ */
+
+.kp-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.kp-badge--required {
+  background: #fff0f0;
+  color: #b52828;
+  border-color: #f5c6c6;
+}
+
+.kp-badge--elective {
+  background: #e8f4fd;
+  color: #1565c0;
+  border-color: #b3d7f5;
+}
+
+.kp-badge--free {
+  background: #f0f7e8;
+  color: #2e6b1a;
+  border-color: #b8dca0;
+}
+
+.kp-badge--easy {
+  background: #defbe6;
+  color: #1c6f3b;
+  border-color: #9fdfb3;
+}
+
+.kp-badge--normal {
+  background: #fff5d9;
+  color: #8a6300;
+  border-color: #f4dc8a;
+}
+
+.kp-badge--hard {
+  background: #fff0f0;
+  color: #b52828;
+  border-color: #f5c6c6;
+}
+
+/* ---- Course info list ------------------------------------------ */
+
+.kp-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.kp-info-card {
+  border: 1px solid var(--color-border-primary, #e3e5e8);
+  border-radius: var(--border-radius-md, 8px);
+  padding: 12px 14px;
+  background: var(--color-background-primary, #fff);
+}
+
+.kp-info-card__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.kp-info-card__course {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.kp-info-card__meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: var(--color-text-secondary, #6b7079);
+  margin-bottom: 6px;
+}
+
+.kp-info-card__summary {
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.kp-info-card__detail,
+.kp-info-card__exam-tips {
+  font-size: 12px;
+  color: var(--color-text-secondary, #4a4f57);
+  line-height: 1.5;
+  margin-bottom: 4px;
+  white-space: pre-wrap;
+}
+
+.kp-info-card__section-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7079);
+  margin-bottom: 2px;
+}
+
+.kp-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.kp-tag {
+  background: var(--color-background-secondary, #eef0f3);
+  color: var(--color-text-secondary, #4a4f57);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+/* ---- Past exam list -------------------------------------------- */
+
+.kp-exam-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kp-exam-card {
+  border: 1px solid var(--color-border-primary, #e3e5e8);
+  border-radius: var(--border-radius-md, 8px);
+  padding: 12px 14px;
+  background: var(--color-background-primary, #fff);
+}
+
+.kp-exam-card__header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.kp-exam-card__course {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.kp-exam-card__year {
+  font-size: 12px;
+  color: var(--color-text-secondary, #5f6368);
+}
+
+.kp-exam-card__meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: var(--color-text-secondary, #6b7079);
+  margin-bottom: 4px;
+}
+
+.kp-exam-card__comment {
+  font-size: 12px;
+  color: var(--color-text-secondary, #4a4f57);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.kp-exam-card__file {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--color-text-secondary, #5f6368);
+  background: var(--color-background-secondary, #f0f2f5);
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-top: 4px;
+}

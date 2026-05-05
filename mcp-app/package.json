@@ -1,0 +1,45 @@
+{
+  "name": "kobe-portal-mcp-app",
+  "version": "0.1.0",
+  "description": "神戸大学食料環境経済学コース学生ポータルを Claude のチャット内 UI として表示する MCP App",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build:ui": "vite build",
+    "build:server": "tsc -p tsconfig.server.json",
+    "build": "npm run build:ui && npm run build:server",
+    "start:stdio": "node dist/server/server/index.js --stdio",
+    "start:http": "node dist/server/server/index.js --http",
+    "dev": "concurrently --raw -n ui,server -c blue,green \"vite build --watch\" \"tsx watch src/server/index.ts --http\"",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.server.json",
+    "lint": "eslint . --ext .ts,.tsx"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.7",
+    "@modelcontextprotocol/ext-apps": "^1.1.0",
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@supabase/supabase-js": "^2.104.0",
+    "hono": "^4.6.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@typescript-eslint/eslint-plugin": "^8.15.0",
+    "@typescript-eslint/parser": "^8.15.0",
+    "@vitejs/plugin-react": "^4.3.3",
+    "concurrently": "^9.1.0",
+    "eslint": "^9.15.0",
+    "eslint-plugin-react": "^7.37.2",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11",
+    "vite-plugin-singlefile": "^2.0.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
