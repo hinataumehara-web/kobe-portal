@@ -117,5 +117,16 @@ export function useCredits(userId) {
     }
   }
 
-  return { credits, loading, updateGrade, updateCustomCredit, refetch: fetchCredits }
+  async function deleteCustomCredit(id) {
+    if (!userId) return
+    const { error } = await supabase
+      .from('user_credits')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', userId)
+    if (error) throw error
+    setCredits((prev) => prev.filter((c) => c.id !== id))
+  }
+
+  return { credits, loading, updateGrade, updateCustomCredit, deleteCustomCredit, refetch: fetchCredits }
 }

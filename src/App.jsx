@@ -22,7 +22,7 @@ import SummaryPage    from './components/pages/SummaryPage.jsx'
 
 export default function App() {
   const { session, profile, loading: authLoading, signIn, signOut, createProfile, updateAdmissionYear } = useAuth()
-  const { credits, loading: creditsLoading, updateGrade } = useCredits(profile?.id)
+  const { credits, loading: creditsLoading, updateGrade, updateCustomCredit, deleteCustomCredit } = useCredits(profile?.id)
   const { exams, loading: examsLoading, uploadExam, getDownloadUrl, deleteExam } = usePastExams()
   const { courseInfos, loading: courseInfoLoading, submitCourseInfo, deleteCourseInfo } = useCourseInfo()
 
@@ -138,6 +138,8 @@ export default function App() {
             credits={credits}
             loading={creditsLoading}
             updateGrade={updateGrade}
+            updateCustomCredit={updateCustomCredit}
+            deleteCustomCredit={deleteCustomCredit}
             showToast={showToast}
           />
         )

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronDown, ChevronRight } from 'lucide-react'
+import { ChevronDown, ChevronRight, Plus, Pencil, Trash2, X } from 'lucide-react'
 import { useCurriculum } from '../../hooks/useCurriculum.js'
 
 const GRADES          = ['未履修', '秀', '優', '良', '可', '不可']
@@ -87,11 +87,17 @@ function getDisplayGroup(course, curriculumKey, categories) {
   return 'その他の科目'
 }
 
+// 2025制度の仮想集計カテゴリ(ユーザー選択肢から除外)
+const VIRTUAL_CATS = new Set(['人文系・社会系 小計', '人文社会自然総合 合計', '自由選択科目'])
+
+const CUSTOM_GRADES = ['未履修', '秀', '優', '良', '可', '不可']
+
+const EMPTY_FORM = { name: '', category: '', credits: 2, grade: '未履修' }
+
 /**
- * 成績入力ページ — グループ別折りたたみ表示
- * @param {{ credits: Array, updateGrade: Function, loading: boolean, showToast: Function }} props
+ * 成績入力ページ — グループ別折りたたみ表示 + 自由入力科目
  */
-export default function CreditsPage({ credits, updateGrade, loading, showToast }) {
+export default function CreditsPage({ credits, updateGrade, updateCustomCredit, deleteCustomCredit, loading, showToast }) {
   const curriculum = useCurriculum()
   const { courses, subcategories, categories, key: curriculumKey } = curriculum
 
@@ -101,8 +107,18 @@ export default function CreditsPage({ credits, updateGrade, loading, showToast }
     [subcategories.FREE]:     'bg-gray-100 text-gray-500',
   }
 
-  const [saving, setSaving]       = useState(null)   // 保存中の courseId
-  const [collapsed, setCollapsed] = useState({})     // グループ折りたたみ状態
+  const [saving, setSaving]             = useState(null)
+  const [collapsed, setCollapsed]       = useState({})
+  const [showCustomForm, setShowCustomForm] = useState(false)
+  const [editingCustomId, setEditingCustomId] = useState(null)
+  const [customForm, setCustomForm]     = useState(EMPTY_FORM)
+  const [savingCustom, setSavingCustom] = useState(false)
+
+  // カテゴリ選択肢(仮想集計カテゴリを除外)
+  const selectableCategories = Object.values(categories).filter((c) => !VIRTUAL_CATS.has(c))
+
+  // 自由入力科目(course_id なし)
+  const customCredits = credits.filter((c) => !c.course_id)
 
   const toggleGroup = (groupName) =>
     setCollapsed((prev) => ({ ...prev, [groupName]: !prev[groupName] }))
@@ -115,6 +131,66 @@ export default function CreditsPage({ credits, updateGrade, loading, showToast }
       showToast('保存に失敗しました: ' + (err.message || ''), 'error')
     } finally {
       setSaving(null)
+    }
+  }
+
+  function openAddForm() {
+    setEditingCustomId(null)
+    setCustomForm({ ...EMPTY_FORM, category: selectableCategories[0] ?? '' })
+    setShowCustomForm(true)
+  }
+
+  function openEditForm(cc) {
+    setEditingCustomId(cc.id)
+    setCustomForm({
+      name:     cc.custom_name     ?? '',
+      category: cc.custom_category ?? '',
+      credits:  cc.custom_credits  ?? 2,
+      grade:    cc.grade           ?? '未履修',
+    })
+    setShowCustomForm(true)
+  }
+
+  function cancelCustomForm() {
+    setShowCustomForm(false)
+    setEditingCustomId(null)
+  }
+
+  async function handleCustomSave() {
+    if (!customForm.name.trim()) { showToast('科目名を入力してください', 'error'); return }
+    if (!customForm.category)    { showToast('分類を選択してください', 'error');   return }
+    const creditsNum = Number(customForm.credits)
+    if (!creditsNum || creditsNum < 1) { showToast('単位数(1以上)を入力してください', 'error'); return }
+
+    setSavingCustom(true)
+    try {
+      const fields = {
+        custom_name:     customForm.name.trim(),
+        custom_category: customForm.category,
+        custom_credits:  creditsNum,
+        grade:           customForm.grade,
+        completed_at:
+          customForm.grade !== '未履修' && customForm.grade !== '不可'
+            ? new Date().toISOString()
+            : null,
+      }
+      await updateCustomCredit(editingCustomId, fields)
+      setShowCustomForm(false)
+      setEditingCustomId(null)
+      showToast(editingCustomId ? '更新しました' : '追加しました', 'success')
+    } catch (err) {
+      showToast('保存に失敗しました: ' + (err.message || ''), 'error')
+    } finally {
+      setSavingCustom(false)
+    }
+  }
+
+  async function handleCustomDelete(id) {
+    try {
+      await deleteCustomCredit(id)
+      showToast('削除しました', 'success')
+    } catch (err) {
+      showToast('削除に失敗しました: ' + (err.message || ''), 'error')
     }
   }
 
@@ -142,6 +218,161 @@ export default function CreditsPage({ credits, updateGrade, loading, showToast }
         </div>
       ) : (
         <div className="space-y-3">
+          {/* ----------------------------------------------------------------
+              自由入力科目セクション
+          ---------------------------------------------------------------- */}
+          <div className="rounded-xl overflow-hidden shadow-sm border border-gray-200">
+            {/* ヘッダー */}
+            <div className="flex items-center justify-between px-4 py-2.5 bg-pink-50 text-pink-800 border-b border-pink-200">
+              <span className="font-semibold text-sm">自由入力科目</span>
+              <button
+                onClick={openAddForm}
+                className="flex items-center gap-1 text-xs bg-pink-100 hover:bg-pink-200 text-pink-800 px-2 py-1 rounded-full transition-colors"
+              >
+                <Plus size={12} /> 科目を追加
+              </button>
+            </div>
+
+            {/* 既存の自由入力科目 */}
+            {customCredits.length > 0 && (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm bg-white">
+                  <thead className="bg-gray-50 text-gray-500 text-xs border-b border-gray-100">
+                    <tr>
+                      <th className="text-left px-3 py-1.5">科目名</th>
+                      <th className="text-left px-3 py-1.5 hidden sm:table-cell">分類</th>
+                      <th className="text-center px-3 py-1.5 hidden sm:table-cell">単位</th>
+                      <th className="text-center px-3 py-1.5">成績</th>
+                      <th className="text-center px-3 py-1.5"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {customCredits.map((cc, i) => (
+                      <tr key={cc.id} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                        <td className="px-3 py-2 font-medium text-gray-800">{cc.custom_name}</td>
+                        <td className="px-3 py-2 text-gray-500 text-xs hidden sm:table-cell">{cc.custom_category}</td>
+                        <td className="px-3 py-2 text-center text-gray-600 hidden sm:table-cell">{cc.custom_credits}</td>
+                        <td className="px-3 py-2 text-center">
+                          <span className={`text-xs px-1.5 py-0.5 rounded-full ${
+                            cc.grade === '未履修' || cc.grade === '不可'
+                              ? 'bg-gray-100 text-gray-400'
+                              : 'bg-green-100 text-green-700'
+                          }`}>
+                            {cc.grade ?? '未履修'}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2 text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            <button
+                              onClick={() => openEditForm(cc)}
+                              className="text-gray-400 hover:text-blue-600 transition-colors"
+                              title="編集"
+                            >
+                              <Pencil size={13} />
+                            </button>
+                            <button
+                              onClick={() => handleCustomDelete(cc.id)}
+                              className="text-gray-400 hover:text-red-600 transition-colors"
+                              title="削除"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* 空の場合のメッセージ */}
+            {customCredits.length === 0 && !showCustomForm && (
+              <p className="text-xs text-gray-400 text-center py-4">
+                まだ自由入力科目はありません
+              </p>
+            )}
+
+            {/* 追加/編集フォーム */}
+            {showCustomForm && (
+              <div className="p-4 bg-gray-50 border-t border-gray-100">
+                <p className="text-xs font-semibold text-gray-600 mb-3">
+                  {editingCustomId ? '科目を編集' : '新規科目を入力'}
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* 科目名 */}
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs text-gray-500 mb-1">科目名</label>
+                    <input
+                      type="text"
+                      value={customForm.name}
+                      onChange={(e) => setCustomForm((f) => ({ ...f, name: e.target.value }))}
+                      placeholder="例: 経済地理学"
+                      className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-pink-400"
+                    />
+                  </div>
+                  {/* 分類 */}
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">分類</label>
+                    <select
+                      value={customForm.category}
+                      onChange={(e) => setCustomForm((f) => ({ ...f, category: e.target.value }))}
+                      className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-pink-400"
+                    >
+                      {selectableCategories.map((cat) => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                  </div>
+                  {/* 単位数 */}
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">単位数</label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={10}
+                      value={customForm.credits}
+                      onChange={(e) => setCustomForm((f) => ({ ...f, credits: e.target.value }))}
+                      className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-pink-400"
+                    />
+                  </div>
+                  {/* 成績 */}
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">成績</label>
+                    <select
+                      value={customForm.grade}
+                      onChange={(e) => setCustomForm((f) => ({ ...f, grade: e.target.value }))}
+                      className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-pink-400"
+                    >
+                      {CUSTOM_GRADES.map((g) => (
+                        <option key={g} value={g}>{g}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                {/* ボタン */}
+                <div className="flex gap-2 mt-3">
+                  <button
+                    onClick={handleCustomSave}
+                    disabled={savingCustom}
+                    className="flex-1 bg-pink-600 hover:bg-pink-700 disabled:opacity-50 text-white text-sm rounded px-3 py-1.5 transition-colors"
+                  >
+                    {savingCustom ? '保存中…' : (editingCustomId ? '更新' : '追加')}
+                  </button>
+                  <button
+                    onClick={cancelCustomForm}
+                    className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 px-3 py-1.5 border border-gray-300 rounded transition-colors"
+                  >
+                    <X size={13} /> キャンセル
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ----------------------------------------------------------------
+              マスタ科目グループ
+          ---------------------------------------------------------------- */}
           {activeGroups.map((groupName) => {
             const groupCourses = groupedCourses[groupName]
             const isCollapsed  = !!collapsed[groupName]
