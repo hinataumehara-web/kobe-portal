@@ -8,8 +8,11 @@
 /** 成績の重み定数 */
 export const GRADE_WEIGHTS = { 秀: 4, 優: 3, 良: 2, 可: 1, 不可: 0 }
 
-// 旧制度の自由入力カテゴリ
+// 旧制度の自由科目カテゴリ(マスタ登録 + 自由入力の両方を集計)
 const OLD_FREE_CATS = new Set(['自由科目(農学部開講)', '自由科目(他学部開講)'])
+
+// 旧制度で PRO_COURSE 要件に合算するカテゴリ(他コース開講を含む)
+const PRO_COURSE_CATS = new Set(['食料環境経済学コース開講科目', '他コース開講科目'])
 
 /** 単位取得とみなさないグレード */
 const FAILED_GRADES = new Set(['不可', '未履修', '不合格'])
@@ -33,11 +36,33 @@ function calcOld(passed, courses, requirements, totalRequired) {
     let earned = 0
 
     if (OLD_FREE_CATS.has(req.category)) {
-      // 自由科目: course_id のない自由入力分のみ集計
-      const free = passed.filter(
-        (uc) => !uc.course_id && uc.custom_category === req.category
-      )
-      earned = free.reduce((sum, uc) => sum + (uc.custom_credits || 0), 0)
+      // 自由科目: マスタ登録(course_id あり)+ 自由入力(course_id なし)を両方集計
+      const masteredEarned = passed
+        .filter((uc) => {
+          if (!uc.course_id) return false
+          const course = courses.find((c) => c.id === uc.course_id)
+          return course && course.category === req.category
+        })
+        .reduce((sum, uc) => {
+          const course = courses.find((c) => c.id === uc.course_id)
+          return sum + (course ? course.credits : 0)
+        }, 0)
+
+      const customEarned = passed
+        .filter((uc) => !uc.course_id && uc.custom_category === req.category)
+        .reduce((sum, uc) => sum + (uc.custom_credits || 0), 0)
+
+      earned = masteredEarned + customEarned
+    } else if (PRO_COURSE_CATS.has(req.category)) {
+      // PRO_COURSE 要件: 自コース + 他コース開講科目を合算
+      const matched = passed.filter((uc) => {
+        const course = courses.find((c) => c.id === uc.course_id)
+        return course && PRO_COURSE_CATS.has(course.category)
+      })
+      earned = matched.reduce((sum, uc) => {
+        const course = courses.find((c) => c.id === uc.course_id)
+        return sum + (course ? course.credits : 0)
+      }, 0)
     } else {
       const matched = passed.filter((uc) => {
         const course = courses.find((c) => c.id === uc.course_id)
