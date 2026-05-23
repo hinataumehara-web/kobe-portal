@@ -87,7 +87,53 @@ export function useCredits(userId) {
   }
 
   /**
-   * 自由入力科目を upsert する
+   * 共有科目の成績を upsert する
+   * @param {string} sharedCourseId - shared_courses.id
+   * @param {string} grade
+   */
+  async function updateSharedGrade(sharedCourseId, grade) {
+    if (!userId) return
+
+    const record = {
+      user_id: userId,
+      shared_course_id: sharedCourseId,
+      grade,
+      updated_at: new Date().toISOString(),
+      completed_at:
+        grade !== '未履修' && grade !== '不可' && grade !== '不合格'
+          ? new Date().toISOString()
+          : null,
+    }
+
+    const existing = credits.find((c) => c.shared_course_id === sharedCourseId)
+
+    let data, error
+    if (existing) {
+      ;({ data, error } = await supabase
+        .from('user_credits')
+        .update(record)
+        .eq('id', existing.id)
+        .select()
+        .single())
+    } else {
+      ;({ data, error } = await supabase
+        .from('user_credits')
+        .insert(record)
+        .select()
+        .single())
+    }
+
+    if (error) throw error
+    setCredits((prev) => {
+      const exists = prev.find((c) => c.shared_course_id === sharedCourseId)
+      return exists
+        ? prev.map((c) => (c.shared_course_id === sharedCourseId ? data : c))
+        : [...prev, data]
+    })
+  }
+
+  /**
+   * 自由入力科目(レガシー: course_id なし・shared_course_id なし)を upsert する
    */
   async function updateCustomCredit(id, fields) {
     if (!userId) return
@@ -128,5 +174,5 @@ export function useCredits(userId) {
     setCredits((prev) => prev.filter((c) => c.id !== id))
   }
 
-  return { credits, loading, updateGrade, updateCustomCredit, deleteCustomCredit, refetch: fetchCredits }
+  return { credits, loading, updateGrade, updateSharedGrade, updateCustomCredit, deleteCustomCredit, refetch: fetchCredits }
 }

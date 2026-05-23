@@ -95,9 +95,21 @@ const CUSTOM_GRADES = ['未履修', '秀', '優', '良', '可', '不可']
 const EMPTY_FORM = { name: '', category: '', credits: 2, grade: '未履修' }
 
 /**
- * 成績入力ページ — グループ別折りたたみ表示 + 自由入力科目
+ * 成績入力ページ — グループ別折りたたみ表示 + 共有自由科目
  */
-export default function CreditsPage({ credits, updateGrade, updateCustomCredit, deleteCustomCredit, loading, showToast }) {
+export default function CreditsPage({
+  credits,
+  updateGrade,
+  updateSharedGrade,
+  updateCustomCredit,
+  deleteCustomCredit,
+  sharedCourses = [],
+  addSharedCourse,
+  deleteSharedCourse,
+  profile,
+  loading,
+  showToast,
+}) {
   const curriculum = useCurriculum()
   const { courses, subcategories, categories, key: curriculumKey } = curriculum
 
@@ -107,18 +119,18 @@ export default function CreditsPage({ credits, updateGrade, updateCustomCredit, 
     [subcategories.FREE]:     'bg-gray-100 text-gray-500',
   }
 
-  const [saving, setSaving]             = useState(null)
-  const [collapsed, setCollapsed]       = useState({})
-  const [showCustomForm, setShowCustomForm] = useState(false)
-  const [editingCustomId, setEditingCustomId] = useState(null)
-  const [customForm, setCustomForm]     = useState(EMPTY_FORM)
-  const [savingCustom, setSavingCustom] = useState(false)
+  const [saving, setSaving]           = useState(null)   // 保存中の courseId
+  const [savingShared, setSavingShared] = useState(null) // 保存中の shared_course_id
+  const [collapsed, setCollapsed]     = useState({})
+  const [showAddForm, setShowAddForm] = useState(false)
+  const [addForm, setAddForm]         = useState(EMPTY_FORM)
+  const [savingAdd, setSavingAdd]     = useState(false)
 
   // カテゴリ選択肢(仮想集計カテゴリを除外)
   const selectableCategories = Object.values(categories).filter((c) => !VIRTUAL_CATS.has(c))
 
-  // 自由入力科目(course_id なし)
-  const customCredits = credits.filter((c) => !c.course_id)
+  // レガシー自由入力科目(course_id・shared_course_id ともになし)
+  const legacyCustomCredits = credits.filter((c) => !c.course_id && !c.shared_course_id)
 
   const toggleGroup = (groupName) =>
     setCollapsed((prev) => ({ ...prev, [groupName]: !prev[groupName] }))
@@ -134,58 +146,52 @@ export default function CreditsPage({ credits, updateGrade, updateCustomCredit, 
     }
   }
 
-  function openAddForm() {
-    setEditingCustomId(null)
-    setCustomForm({ ...EMPTY_FORM, category: selectableCategories[0] ?? '' })
-    setShowCustomForm(true)
-  }
-
-  function openEditForm(cc) {
-    setEditingCustomId(cc.id)
-    setCustomForm({
-      name:     cc.custom_name     ?? '',
-      category: cc.custom_category ?? '',
-      credits:  cc.custom_credits  ?? 2,
-      grade:    cc.grade           ?? '未履修',
-    })
-    setShowCustomForm(true)
-  }
-
-  function cancelCustomForm() {
-    setShowCustomForm(false)
-    setEditingCustomId(null)
-  }
-
-  async function handleCustomSave() {
-    if (!customForm.name.trim()) { showToast('科目名を入力してください', 'error'); return }
-    if (!customForm.category)    { showToast('分類を選択してください', 'error');   return }
-    const creditsNum = Number(customForm.credits)
-    if (!creditsNum || creditsNum < 1) { showToast('単位数(1以上)を入力してください', 'error'); return }
-
-    setSavingCustom(true)
+  async function handleSharedGradeChange(sharedCourseId, grade) {
+    setSavingShared(sharedCourseId)
     try {
-      const fields = {
-        custom_name:     customForm.name.trim(),
-        custom_category: customForm.category,
-        custom_credits:  creditsNum,
-        grade:           customForm.grade,
-        completed_at:
-          customForm.grade !== '未履修' && customForm.grade !== '不可'
-            ? new Date().toISOString()
-            : null,
-      }
-      await updateCustomCredit(editingCustomId, fields)
-      setShowCustomForm(false)
-      setEditingCustomId(null)
-      showToast(editingCustomId ? '更新しました' : '追加しました', 'success')
+      await updateSharedGrade(sharedCourseId, grade)
     } catch (err) {
       showToast('保存に失敗しました: ' + (err.message || ''), 'error')
     } finally {
-      setSavingCustom(false)
+      setSavingShared(null)
     }
   }
 
-  async function handleCustomDelete(id) {
+  async function handleAddSharedCourse() {
+    if (!addForm.name.trim()) { showToast('科目名を入力してください', 'error'); return }
+    if (!addForm.category)    { showToast('分類を選択してください', 'error');   return }
+    const creditsNum = Number(addForm.credits)
+    if (!creditsNum || creditsNum < 1) { showToast('単位数(1以上)を入力してください', 'error'); return }
+
+    setSavingAdd(true)
+    try {
+      await addSharedCourse({
+        name:         addForm.name.trim(),
+        category:     addForm.category,
+        credits:      creditsNum,
+        creator_name: profile?.name ?? '',
+      })
+      setShowAddForm(false)
+      setAddForm(EMPTY_FORM)
+      showToast('科目を追加しました。全員が成績を入力できます。', 'success')
+    } catch (err) {
+      showToast('追加に失敗しました: ' + (err.message || ''), 'error')
+    } finally {
+      setSavingAdd(false)
+    }
+  }
+
+  async function handleDeleteSharedCourse(id) {
+    if (!window.confirm('この科目を削除しますか？全員の成績データも削除されます。')) return
+    try {
+      await deleteSharedCourse(id)
+      showToast('削除しました', 'success')
+    } catch (err) {
+      showToast('削除に失敗しました: ' + (err.message || ''), 'error')
+    }
+  }
+
+  async function handleLegacyDelete(id) {
     try {
       await deleteCustomCredit(id)
       showToast('削除しました', 'success')
@@ -219,22 +225,25 @@ export default function CreditsPage({ credits, updateGrade, updateCustomCredit, 
       ) : (
         <div className="space-y-3">
           {/* ----------------------------------------------------------------
-              自由入力科目セクション
+              自由入力科目セクション(全員共有)
           ---------------------------------------------------------------- */}
           <div className="rounded-xl overflow-hidden shadow-sm border border-gray-200">
             {/* ヘッダー */}
             <div className="flex items-center justify-between px-4 py-2.5 bg-pink-50 text-pink-800 border-b border-pink-200">
-              <span className="font-semibold text-sm">自由入力科目</span>
+              <div>
+                <span className="font-semibold text-sm">自由入力科目</span>
+                <span className="ml-2 text-xs opacity-60">誰かが追加した科目は全員が成績入力できます</span>
+              </div>
               <button
-                onClick={openAddForm}
+                onClick={() => { setShowAddForm(true); setAddForm({ ...EMPTY_FORM, category: selectableCategories[0] ?? '' }) }}
                 className="flex items-center gap-1 text-xs bg-pink-100 hover:bg-pink-200 text-pink-800 px-2 py-1 rounded-full transition-colors"
               >
                 <Plus size={12} /> 科目を追加
               </button>
             </div>
 
-            {/* 既存の自由入力科目 */}
-            {customCredits.length > 0 && (
+            {/* 共有科目テーブル */}
+            {sharedCourses.length > 0 && (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm bg-white">
                   <thead className="bg-gray-50 text-gray-500 text-xs border-b border-gray-100">
@@ -243,80 +252,91 @@ export default function CreditsPage({ credits, updateGrade, updateCustomCredit, 
                       <th className="text-left px-3 py-1.5 hidden sm:table-cell">分類</th>
                       <th className="text-center px-3 py-1.5 hidden sm:table-cell">単位</th>
                       <th className="text-center px-3 py-1.5">成績</th>
-                      <th className="text-center px-3 py-1.5"></th>
+                      <th className="text-center px-3 py-1.5 w-8"></th>
                     </tr>
                   </thead>
                   <tbody>
-                    {customCredits.map((cc, i) => (
-                      <tr key={cc.id} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                        <td className="px-3 py-2 font-medium text-gray-800">{cc.custom_name}</td>
-                        <td className="px-3 py-2 text-gray-500 text-xs hidden sm:table-cell">{cc.custom_category}</td>
-                        <td className="px-3 py-2 text-center text-gray-600 hidden sm:table-cell">{cc.custom_credits}</td>
-                        <td className="px-3 py-2 text-center">
-                          <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                            cc.grade === '未履修' || cc.grade === '不可'
-                              ? 'bg-gray-100 text-gray-400'
-                              : 'bg-green-100 text-green-700'
-                          }`}>
-                            {cc.grade ?? '未履修'}
-                          </span>
-                        </td>
-                        <td className="px-3 py-2 text-center">
-                          <div className="flex items-center justify-center gap-2">
-                            <button
-                              onClick={() => openEditForm(cc)}
-                              className="text-gray-400 hover:text-blue-600 transition-colors"
-                              title="編集"
+                    {sharedCourses.map((sc, i) => {
+                      const uc         = credits.find((c) => c.shared_course_id === sc.id)
+                      const grade      = uc?.grade ?? '未履修'
+                      const isSaving   = savingShared === sc.id
+                      const isCreator  = sc.created_by === profile?.id
+
+                      return (
+                        <tr key={sc.id} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                          <td className="px-3 py-2 font-medium text-gray-800">
+                            {sc.name}
+                            {sc.creator_name && (
+                              <span className="ml-1.5 text-xs text-gray-400 font-normal">
+                                ({sc.creator_name} が追加)
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-3 py-2 text-gray-500 text-xs hidden sm:table-cell">{sc.category}</td>
+                          <td className="px-3 py-2 text-center text-gray-600 hidden sm:table-cell">{sc.credits}</td>
+                          <td className="px-3 py-2 text-center">
+                            <select
+                              value={grade}
+                              onChange={(e) => handleSharedGradeChange(sc.id, e.target.value)}
+                              disabled={isSaving}
+                              className={`border rounded px-2 py-0.5 text-xs focus:outline-none focus:ring-1 ${
+                                grade === '未履修'
+                                  ? 'text-gray-400 border-gray-200'
+                                  : 'text-gray-700 border-gray-400'
+                              } disabled:opacity-50`}
                             >
-                              <Pencil size={13} />
-                            </button>
-                            <button
-                              onClick={() => handleCustomDelete(cc.id)}
-                              className="text-gray-400 hover:text-red-600 transition-colors"
-                              title="削除"
-                            >
-                              <Trash2 size={13} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                              {CUSTOM_GRADES.map((g) => (
+                                <option key={g} value={g}>{g}</option>
+                              ))}
+                            </select>
+                            {isSaving && <span className="ml-1 text-xs text-gray-400">保存中…</span>}
+                          </td>
+                          <td className="px-3 py-2 text-center">
+                            {isCreator && (
+                              <button
+                                onClick={() => handleDeleteSharedCourse(sc.id)}
+                                className="text-gray-300 hover:text-red-500 transition-colors"
+                                title="削除(自分が追加した科目)"
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      )
+                    })}
                   </tbody>
                 </table>
               </div>
             )}
 
-            {/* 空の場合のメッセージ */}
-            {customCredits.length === 0 && !showCustomForm && (
+            {/* 空の場合 */}
+            {sharedCourses.length === 0 && !showAddForm && (
               <p className="text-xs text-gray-400 text-center py-4">
-                まだ自由入力科目はありません
+                まだ追加された科目はありません
               </p>
             )}
 
-            {/* 追加/編集フォーム */}
-            {showCustomForm && (
+            {/* 科目追加フォーム */}
+            {showAddForm && (
               <div className="p-4 bg-gray-50 border-t border-gray-100">
-                <p className="text-xs font-semibold text-gray-600 mb-3">
-                  {editingCustomId ? '科目を編集' : '新規科目を入力'}
-                </p>
+                <p className="text-xs font-semibold text-gray-600 mb-3">新規科目を追加（追加後は全員が成績入力できます）</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {/* 科目名 */}
                   <div className="sm:col-span-2">
                     <label className="block text-xs text-gray-500 mb-1">科目名</label>
                     <input
                       type="text"
-                      value={customForm.name}
-                      onChange={(e) => setCustomForm((f) => ({ ...f, name: e.target.value }))}
+                      value={addForm.name}
+                      onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))}
                       placeholder="例: 経済地理学"
                       className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-pink-400"
                     />
                   </div>
-                  {/* 分類 */}
                   <div>
                     <label className="block text-xs text-gray-500 mb-1">分類</label>
                     <select
-                      value={customForm.category}
-                      onChange={(e) => setCustomForm((f) => ({ ...f, category: e.target.value }))}
+                      value={addForm.category}
+                      onChange={(e) => setAddForm((f) => ({ ...f, category: e.target.value }))}
                       className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-pink-400"
                     >
                       {selectableCategories.map((cat) => (
@@ -324,47 +344,49 @@ export default function CreditsPage({ credits, updateGrade, updateCustomCredit, 
                       ))}
                     </select>
                   </div>
-                  {/* 単位数 */}
                   <div>
                     <label className="block text-xs text-gray-500 mb-1">単位数</label>
                     <input
                       type="number"
                       min={1}
                       max={10}
-                      value={customForm.credits}
-                      onChange={(e) => setCustomForm((f) => ({ ...f, credits: e.target.value }))}
+                      value={addForm.credits}
+                      onChange={(e) => setAddForm((f) => ({ ...f, credits: e.target.value }))}
                       className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-pink-400"
                     />
                   </div>
-                  {/* 成績 */}
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">成績</label>
-                    <select
-                      value={customForm.grade}
-                      onChange={(e) => setCustomForm((f) => ({ ...f, grade: e.target.value }))}
-                      className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-pink-400"
-                    >
-                      {CUSTOM_GRADES.map((g) => (
-                        <option key={g} value={g}>{g}</option>
-                      ))}
-                    </select>
-                  </div>
                 </div>
-                {/* ボタン */}
                 <div className="flex gap-2 mt-3">
                   <button
-                    onClick={handleCustomSave}
-                    disabled={savingCustom}
+                    onClick={handleAddSharedCourse}
+                    disabled={savingAdd}
                     className="flex-1 bg-pink-600 hover:bg-pink-700 disabled:opacity-50 text-white text-sm rounded px-3 py-1.5 transition-colors"
                   >
-                    {savingCustom ? '保存中…' : (editingCustomId ? '更新' : '追加')}
+                    {savingAdd ? '追加中…' : '追加する'}
                   </button>
                   <button
-                    onClick={cancelCustomForm}
+                    onClick={() => setShowAddForm(false)}
                     className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 px-3 py-1.5 border border-gray-300 rounded transition-colors"
                   >
                     <X size={13} /> キャンセル
                   </button>
+                </div>
+              </div>
+            )}
+
+            {/* レガシー自由入力科目(移行前データ) */}
+            {legacyCustomCredits.length > 0 && (
+              <div className="border-t border-dashed border-gray-200 px-4 py-2">
+                <p className="text-xs text-gray-400 mb-1">以前の個人メモ（自分のみ表示）</p>
+                <div className="space-y-1">
+                  {legacyCustomCredits.map((cc) => (
+                    <div key={cc.id} className="flex items-center justify-between text-xs text-gray-500">
+                      <span>{cc.custom_name} ({cc.custom_category} / {cc.custom_credits}単位 / {cc.grade})</span>
+                      <button onClick={() => handleLegacyDelete(cc.id)} className="text-gray-300 hover:text-red-500 ml-2">
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}

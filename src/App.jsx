@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 
-import { useAuth }       from './hooks/useAuth.js'
-import { useCredits }    from './hooks/useCredits.js'
-import { usePastExams }  from './hooks/usePastExams.js'
-import { useCourseInfo } from './hooks/useCourseInfo.js'
-import { getCurriculum } from './data/curriculum.js'
+import { useAuth }          from './hooks/useAuth.js'
+import { useCredits }       from './hooks/useCredits.js'
+import { useSharedCourses } from './hooks/useSharedCourses.js'
+import { usePastExams }     from './hooks/usePastExams.js'
+import { useCourseInfo }    from './hooks/useCourseInfo.js'
+import { getCurriculum }    from './data/curriculum.js'
 
 import LoginForm          from './components/auth/LoginForm.jsx'
 import MagicLinkSent      from './components/auth/MagicLinkSent.jsx'
@@ -22,9 +23,21 @@ import SummaryPage    from './components/pages/SummaryPage.jsx'
 
 export default function App() {
   const { session, profile, loading: authLoading, signIn, signOut, createProfile, updateAdmissionYear } = useAuth()
-  const { credits, loading: creditsLoading, updateGrade, updateCustomCredit, deleteCustomCredit } = useCredits(profile?.id)
+  const { credits, loading: creditsLoading, updateGrade, updateSharedGrade, updateCustomCredit, deleteCustomCredit } = useCredits(profile?.id)
+  const { sharedCourses, loading: sharedCoursesLoading, addSharedCourse, deleteSharedCourse } = useSharedCourses()
   const { exams, loading: examsLoading, uploadExam, getDownloadUrl, deleteExam } = usePastExams()
   const { courseInfos, loading: courseInfoLoading, submitCourseInfo, deleteCourseInfo } = useCourseInfo()
+
+  // 単位計算用: shared_course_id を持つ user_credits に category/credits を補完
+  const enrichedCredits = useMemo(() => {
+    if (!sharedCourses.length) return credits
+    return credits.map((uc) => {
+      if (!uc.shared_course_id) return uc
+      const sc = sharedCourses.find((s) => s.id === uc.shared_course_id)
+      if (!sc) return uc
+      return { ...uc, custom_category: sc.category, custom_credits: sc.credits }
+    })
+  }, [credits, sharedCourses])
 
   const [page,               setPage]               = useState('home')
   const [sentEmail,          setSentEmail]          = useState('')
@@ -135,19 +148,24 @@ export default function App() {
       case 'credits':
         return (
           <CreditsPage
-            credits={credits}
-            loading={creditsLoading}
+            credits={enrichedCredits}
+            loading={creditsLoading || sharedCoursesLoading}
             updateGrade={updateGrade}
+            updateSharedGrade={updateSharedGrade}
             updateCustomCredit={updateCustomCredit}
             deleteCustomCredit={deleteCustomCredit}
+            sharedCourses={sharedCourses}
+            addSharedCourse={addSharedCourse}
+            deleteSharedCourse={deleteSharedCourse}
+            profile={profile}
             showToast={showToast}
           />
         )
       case 'summary':
         return (
           <SummaryPage
-            credits={credits}
-            loading={creditsLoading}
+            credits={enrichedCredits}
+            loading={creditsLoading || sharedCoursesLoading}
           />
         )
       default:

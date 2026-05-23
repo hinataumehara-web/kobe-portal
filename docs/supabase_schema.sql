@@ -197,3 +197,43 @@ create policy "owners can delete past-exams"
     bucket_id = 'past-exams'
     and auth.uid()::text = (storage.foldername(name))[1]
   );
+
+-- -------------------------------------------------------------------------
+-- shared_courses テーブル(全ユーザー共有の自由入力科目)
+-- -------------------------------------------------------------------------
+create table if not exists public.shared_courses (
+  id           uuid default gen_random_uuid() primary key,
+  name         text not null,
+  category     text not null,
+  credits      numeric not null check (credits > 0),
+  created_by   uuid references public.profiles(id) on delete set null,
+  creator_name text,
+  created_at   timestamptz default now()
+);
+
+alter table public.shared_courses enable row level security;
+
+drop policy if exists "ログイン済みユーザーは共有科目を閲覧可" on public.shared_courses;
+create policy "ログイン済みユーザーは共有科目を閲覧可"
+  on public.shared_courses for select
+  using (auth.role() = 'authenticated');
+
+drop policy if exists "ログイン済みユーザーは共有科目を追加可" on public.shared_courses;
+create policy "ログイン済みユーザーは共有科目を追加可"
+  on public.shared_courses for insert
+  with check (auth.role() = 'authenticated');
+
+drop policy if exists "追加者のみ共有科目を削除可" on public.shared_courses;
+create policy "追加者のみ共有科目を削除可"
+  on public.shared_courses for delete
+  using (auth.uid() = created_by);
+
+-- -------------------------------------------------------------------------
+-- user_credits に shared_course_id カラムを追加
+-- -------------------------------------------------------------------------
+alter table public.user_credits
+  add column if not exists shared_course_id uuid references public.shared_courses(id) on delete cascade;
+
+create unique index if not exists user_credits_shared_unique
+  on public.user_credits(user_id, shared_course_id)
+  where shared_course_id is not null;
