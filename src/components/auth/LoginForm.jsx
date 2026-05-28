@@ -1,7 +1,5 @@
 import { useState } from 'react'
-
-// 学番メール形式: 7桁数字 + 小文字1文字 + @stu.kobe-u.ac.jp
-const EMAIL_RE = /^\d{7}[a-z]@stu\.kobe-u\.ac\.jp$/
+import { STUDENT_EMAIL_RE } from '../../hooks/useAuth.js'
 
 // ロゴ部分(共通)
 function Logo() {
@@ -20,9 +18,10 @@ function Logo() {
 }
 
 /**
- * ログインフォーム
- * - 初回: 氏名 + メールアドレスを入力してマジックリンク送信
- * - 再訪問: 保存済みメールにワンクリックで送信
+ * ログインフォーム(コード認証版)
+ * - 学番メール (例: 226r001a@stu.kobe-u.ac.jp) のみ受け付ける
+ * - 入力されたメールに6桁の確認コードを送信する
+ * - 氏名はコード認証後の ProfileSetup 画面で入力する
  */
 export default function LoginForm({ signIn, onSent }) {
   // 前回ログイン時に保存したメール
@@ -32,7 +31,6 @@ export default function LoginForm({ signIn, onSent }) {
   const [mode, setMode] = useState(savedEmail ? 'quick' : 'full')
 
   const [email,   setEmail]   = useState('')
-  const [name,    setName]    = useState('')
   const [loading, setLoading] = useState(false)
   const [error,   setError]   = useState('')
 
@@ -55,20 +53,17 @@ export default function LoginForm({ signIn, onSent }) {
     e.preventDefault()
     setError('')
 
-    if (!EMAIL_RE.test(email)) {
+    const trimmed = email.trim().toLowerCase()
+
+    if (!STUDENT_EMAIL_RE.test(trimmed)) {
       setError('学番メール形式で入力してください (例: 226r001a@stu.kobe-u.ac.jp)')
-      return
-    }
-    if (!name.trim()) {
-      setError('氏名を入力してください')
       return
     }
 
     setLoading(true)
     try {
-      sessionStorage.setItem('portal:pending_name', name.trim())
-      await signIn(email)
-      onSent(email)
+      await signIn(trimmed)
+      onSent(trimmed)
     } catch (err) {
       setError(err.message || 'メール送信に失敗しました')
     } finally {
@@ -106,11 +101,11 @@ export default function LoginForm({ signIn, onSent }) {
               className="w-full text-white rounded-lg py-2.5 text-sm font-medium transition disabled:opacity-50"
               style={{ backgroundColor: '#4e8b68' }}
             >
-              {loading ? '送信中...' : 'ログインリンクを送信'}
+              {loading ? '送信中...' : '確認コードを送信'}
             </button>
 
             <p className="text-xs text-center text-gray-400">
-              メールのリンクをクリックするだけでログインできます
+              メールに届く6桁の確認コードを入力してログインします
             </p>
 
             <div className="text-center pt-1">
@@ -128,17 +123,6 @@ export default function LoginForm({ signIn, onSent }) {
         {mode === 'full' && (
           <form onSubmit={handleFullLogin} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">氏名</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="例: 山田 太郎"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
-              />
-            </div>
-
-            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 学番メールアドレス
               </label>
@@ -147,10 +131,12 @@ export default function LoginForm({ signIn, onSent }) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="例: 226r001a@stu.kobe-u.ac.jp"
+                autoComplete="email"
+                inputMode="email"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
               />
               <p className="text-xs text-gray-400 mt-1">
-                @stu.kobe-u.ac.jp のみ使用できます
+                @stu.kobe-u.ac.jp のみ使用できます(7桁数字 + 小文字1文字)
               </p>
             </div>
 
@@ -164,11 +150,11 @@ export default function LoginForm({ signIn, onSent }) {
               className="w-full text-white rounded-lg py-2.5 text-sm font-medium transition disabled:opacity-50"
               style={{ backgroundColor: '#4e8b68' }}
             >
-              {loading ? '送信中...' : 'ログインリンクを送信'}
+              {loading ? '送信中...' : '確認コードを送信'}
             </button>
 
             <p className="mt-2 text-xs text-center text-gray-400">
-              パスワード不要 — メールのリンクをクリックするだけでログインできます
+              パスワード不要 — メールに届く6桁の確認コードを入力してログインします
             </p>
           </form>
         )}

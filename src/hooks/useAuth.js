@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase.js'
 
+// 学番メール形式: 7桁数字 + 小文字1文字 + @stu.kobe-u.ac.jp
+// 例: 226r001a@stu.kobe-u.ac.jp
+export const STUDENT_EMAIL_RE = /^\d{7}[a-z]@stu\.kobe-u\.ac\.jp$/
+
 /**
  * Supabase Auth のセッション + profiles テーブルを管理する hook
  *
@@ -8,7 +12,8 @@ import { supabase } from '../lib/supabase.js'
  *   session    - Supabase の Session オブジェクト(未ログイン時 null)
  *   profile    - profiles テーブルのレコード(未登録時 null)
  *   loading    - セッション確認中フラグ
- *   signIn(email)            - マジックリンク送信
+ *   signIn(email)            - 6桁の確認コードをメール送信
+ *   verifyCode(email, code)  - 6桁の確認コードを検証してログイン完了
  *   signOut()                - ログアウト
  *   createProfile(name)      - 初回ログイン時にプロフィール作成
  */
@@ -60,18 +65,53 @@ export function useAuth() {
   }
 
   /**
-   * マジックリンクをメールで送信する
+   * 6桁の確認コードをメールで送信する
+   *
+   * クライアント側で学番メール形式をチェックし、形式が異なる場合は
+   * Supabase API を呼ばずに即座にエラーにする。
+   * (サーバー側でも Before User Created Auth Hook で再度弾く)
+   *
    * @param {string} email - 学番メール
    */
   async function signIn(email) {
+    // 学番メール形式チェック(クライアント側の一次フィルタ)
+    if (!STUDENT_EMAIL_RE.test(email)) {
+      throw new Error('学番メール (例: 226r001a@stu.kobe-u.ac.jp) のみ使用できます')
+    }
+
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        // メール確認後にリダイレクトするURL(本番は Vercel のURLに変更)
-        emailRedirectTo: window.location.origin,
+        // emailRedirectTo は指定しない。
+        // メールテンプレートを {{ .Token }} (6桁コード) に設定することで
+        // マジックリンクではなく確認コード方式になる。
+        shouldCreateUser: true,
       },
     })
     if (error) throw error
+  }
+
+  /**
+   * 6桁の確認コードを検証してログインを完了する
+   *
+   * @param {string} email - signIn で送信先に指定したメール
+   * @param {string} code  - メールに記載されている6桁のコード
+   */
+  async function verifyCode(email, code) {
+    if (!STUDENT_EMAIL_RE.test(email)) {
+      throw new Error('学番メール (例: 226r001a@stu.kobe-u.ac.jp) のみ使用できます')
+    }
+    const token = String(code).trim().replace(/\s+/g, '')
+    if (!/^\d{6}$/.test(token)) {
+      throw new Error('確認コードは6桁の数字で入力してください')
+    }
+    const { data, error } = await supabase.auth.verifyOtp({
+      email,
+      token,
+      type: 'email',
+    })
+    if (error) throw error
+    return data
   }
 
   /** ログアウト(saved_email は残す — 次回ワンクリックログインに使う) */
@@ -89,6 +129,9 @@ export function useAuth() {
 
     // 学籍番号をメールから抽出 (例: 226r001a@stu.kobe-u.ac.jp → 226r001a)
     const studentId = user.email.split('@')[0].toUpperCase()
+
+    // Auth の user_metadata にも名前を保存(Supabase ダッシュボードの Display name に反映)
+    await supabase.auth.updateUser({ data: { full_name: name } })
 
     const { data, error } = await supabase
       .from('profiles')
@@ -124,5 +167,14 @@ export function useAuth() {
     setProfile(data)
   }
 
-  return { session, profile, loading, signIn, signOut, createProfile, updateAdmissionYear }
+  return {
+    session,
+    profile,
+    loading,
+    signIn,
+    verifyCode,
+    signOut,
+    createProfile,
+    updateAdmissionYear,
+  }
 }

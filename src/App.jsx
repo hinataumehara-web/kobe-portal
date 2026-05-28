@@ -8,7 +8,7 @@ import { useCourseInfo }    from './hooks/useCourseInfo.js'
 import { getCurriculum }    from './data/curriculum.js'
 
 import LoginForm          from './components/auth/LoginForm.jsx'
-import MagicLinkSent      from './components/auth/MagicLinkSent.jsx'
+import VerifyCodeForm     from './components/auth/VerifyCodeForm.jsx'
 import ProfileSetup       from './components/auth/ProfileSetup.jsx'
 import AdmissionYearModal from './components/auth/AdmissionYearModal.jsx'
 import PortalLayout       from './components/layout/PortalLayout.jsx'
@@ -22,7 +22,7 @@ import CreditsPage    from './components/pages/CreditsPage.jsx'
 import SummaryPage    from './components/pages/SummaryPage.jsx'
 
 export default function App() {
-  const { session, profile, loading: authLoading, signIn, signOut, createProfile, updateAdmissionYear } = useAuth()
+  const { session, profile, loading: authLoading, signIn, verifyCode, signOut, createProfile, updateAdmissionYear } = useAuth()
   const { credits, loading: creditsLoading, updateGrade, updateSharedGrade, updateCustomCredit, deleteCustomCredit } = useCredits(profile?.id)
   const { sharedCourses, loading: sharedCoursesLoading, addSharedCourse, deleteSharedCourse } = useSharedCourses()
   const { exams, loading: examsLoading, uploadExam, getDownloadUrl, deleteExam } = usePastExams()
@@ -82,8 +82,10 @@ export default function App() {
   if (!session) {
     if (sentEmail) {
       return (
-        <MagicLinkSent
+        <VerifyCodeForm
           email={sentEmail}
+          verifyCode={verifyCode}
+          resend={signIn}
           onBack={() => setSentEmail('')}
         />
       )

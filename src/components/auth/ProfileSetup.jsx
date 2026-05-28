@@ -1,13 +1,11 @@
 import { useState } from 'react'
 
 /**
- * 初回ログイン後の氏名登録画面
+ * 確認コード認証後の氏名登録画面
+ * (初回ログイン時のみ表示される)
  */
 export default function ProfileSetup({ email, createProfile }) {
-  const [name,    setName]    = useState(
-    // LoginForm で sessionStorage に保存した氏名を初期値に使う
-    () => sessionStorage.getItem('portal:pending_name') || ''
-  )
+  const [name,    setName]    = useState('')
   const [loading, setLoading] = useState(false)
   const [error,   setError]   = useState('')
 
@@ -19,7 +17,6 @@ export default function ProfileSetup({ email, createProfile }) {
     setError('')
     try {
       await createProfile(name.trim())
-      sessionStorage.removeItem('portal:pending_name')
     } catch (err) {
       setError(err.message || 'プロフィールの作成に失敗しました')
       setLoading(false)
@@ -30,7 +27,10 @@ export default function ProfileSetup({ email, createProfile }) {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-md p-8 w-full max-w-sm">
         <h2 className="text-lg font-bold text-gray-800 mb-1">はじめまして</h2>
-        <p className="text-xs text-gray-500 mb-6">{email}</p>
+        <p className="text-xs text-gray-500 mb-1">{email}</p>
+        <p className="text-xs text-gray-500 mb-6">
+          メール認証が完了しました。最後にお名前を登録してください。
+        </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

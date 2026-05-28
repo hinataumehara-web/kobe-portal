@@ -237,3 +237,81 @@ alter table public.user_credits
 create unique index if not exists user_credits_shared_unique
   on public.user_credits(user_id, shared_course_id)
   where shared_course_id is not null;
+
+-- ============================================================================
+-- 学番メール以外のサインアップを禁止する Auth Hook
+-- (Before User Created Hook)
+--
+-- 【目的】
+--   クライアント側の正規表現チェックを迂回されても、サーバー側で
+--   `7桁数字 + 小文字1文字 + @stu.kobe-u.ac.jp` 形式以外のメールアドレスでは
+--   ユーザー作成 = 認証メール送信が起こらないようにする。
+--
+-- 【有効化手順】
+--   1. この SQL を実行して関数を作成
+--   2. Supabase Dashboard > Authentication > Hooks (Beta)
+--      > "Before User Created" を有効化
+--      > Hook type: Postgres
+--      > Schema: public  /  Function: restrict_to_student_email
+--      > Save
+--
+-- 【参考】 https://supabase.com/docs/guides/auth/auth-hooks/before-user-created-hook
+-- ============================================================================
+create or replace function public.restrict_to_student_email(event jsonb)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  email_addr text;
+begin
+  -- イベントペイロードからメールアドレスを取り出す
+  -- (キー名は Supabase の Auth Hook 仕様に従う)
+  email_addr := lower(coalesce(
+    event #>> '{user,email}',
+    event #>> '{claims,email}',
+    event ->> 'email'
+  ));
+
+  -- 学番メール形式チェック: 7桁数字 + 小文字1文字 + @stu.kobe-u.ac.jp
+  if email_addr is null or email_addr !~ '^[0-9]{7}[a-z]@stu\.kobe-u\.ac\.jp$' then
+    return jsonb_build_object(
+      'error', jsonb_build_object(
+        'http_code', 400,
+        'message',
+        '神戸大学の学番メール (例: 226r001a@stu.kobe-u.ac.jp) のみ登録できます'
+      )
+    );
+  end if;
+
+  -- 通過 → 空の decision を返す
+  return jsonb_build_object('decision', 'continue');
+end;
+$$;
+
+-- Auth Hook 用のロール supabase_auth_admin に実行権限を付与
+grant execute on function public.restrict_to_student_email(jsonb)
+  to supabase_auth_admin;
+grant usage on schema public to supabase_auth_admin;
+
+-- ============================================================================
+-- 【併せて Supabase Dashboard で行う設定】
+--
+-- ◆ メールテンプレートを「マジックリンク」→「6桁コード」に変更
+--   Dashboard > Authentication > Email Templates > "Magic Link"
+--   本文を以下のように {{ .Token }} を使ったテンプレートに書き換える:
+--
+--     <h2>確認コード: {{ .Token }}</h2>
+--     <p>このコードをポータルの入力欄に貼り付けてログインを完了してください。</p>
+--     <p>コードは 60 分間有効です。心当たりがなければこのメールは無視してください。</p>
+--
+--   ※ {{ .ConfirmationURL }} を残しておくとマジックリンクも併用可能。
+--     コードのみ運用にする場合は削除してよい。
+--
+-- ◆ サインアップを制限する
+--   Dashboard > Authentication > Providers > Email
+--   "Confirm email" は ON、"Allow new users to sign up" は ON のまま
+--   (Auth Hook 側で弾くため Allow signup は ON でよい)
+-- ============================================================================
+
