@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { courses } from '../../data/courses.js'
 
-const CRIMSON = '#4e8b68'
+const CRIMSON = '#40916c'
 const CURRENT_YEAR = new Date().getFullYear()
 
 /**

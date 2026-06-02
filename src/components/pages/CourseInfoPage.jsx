@@ -38,7 +38,7 @@ export default function CourseInfoPage({ courseInfos, loading, submitCourseInfo,
         <button
           onClick={() => setShowAdd(true)}
           className="text-sm text-white px-3 py-1.5 rounded-lg transition"
-          style={{ backgroundColor: '#4e8b68' }}
+          style={{ backgroundColor: '#40916c' }}
         >
           + 情報を追加
         </button>
@@ -65,7 +65,7 @@ export default function CourseInfoPage({ courseInfos, loading, submitCourseInfo,
               onClick={() => setDifficulty(d)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
                 difficulty === d
-                  ? 'bg-green-700 text-white'
+                  ? 'bg-[#40916c] text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
@@ -232,7 +232,7 @@ function CourseInfoModal({ info, onClose, onNavigateToExams }) {
             <button
               onClick={() => { onClose(); onNavigateToExams(info.course_id) }}
               className="w-full text-white text-sm font-medium rounded-lg py-2.5 transition"
-              style={{ backgroundColor: '#4e8b68' }}
+              style={{ backgroundColor: '#40916c' }}
             >
               この科目の過去問を見る
             </button>
@@ -442,7 +442,7 @@ function AddCourseInfoModal({ profile, onClose, onSubmit, showToast }) {
               type="submit"
               disabled={submitting}
               className="px-4 py-2 text-sm text-white rounded-lg transition disabled:opacity-50"
-              style={{ backgroundColor: '#4e8b68' }}
+              style={{ backgroundColor: '#40916c' }}
             >
               {submitting ? '投稿中...' : '投稿する'}
             </button>

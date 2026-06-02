@@ -7,7 +7,7 @@ function Logo() {
     <div className="mb-6 text-center">
       <div
         className="inline-flex w-12 h-12 rounded-full mb-3 items-center justify-center text-white font-bold text-lg"
-        style={{ backgroundColor: '#4e8b68' }}
+        style={{ backgroundColor: '#40916c' }}
       >
         神大
       </div>
@@ -79,7 +79,7 @@ export default function LoginForm({ signIn, onSent }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#f5fbf6' }}>
       <div className="bg-white rounded-2xl shadow-md p-8 w-full max-w-sm">
         <Logo />
 
@@ -99,7 +99,7 @@ export default function LoginForm({ signIn, onSent }) {
               onClick={handleQuickLogin}
               disabled={loading}
               className="w-full text-white rounded-lg py-2.5 text-sm font-medium transition disabled:opacity-50"
-              style={{ backgroundColor: '#4e8b68' }}
+              style={{ backgroundColor: '#40916c' }}
             >
               {loading ? '送信中...' : '確認コードを送信'}
             </button>
@@ -148,7 +148,7 @@ export default function LoginForm({ signIn, onSent }) {
               type="submit"
               disabled={loading}
               className="w-full text-white rounded-lg py-2.5 text-sm font-medium transition disabled:opacity-50"
-              style={{ backgroundColor: '#4e8b68' }}
+              style={{ backgroundColor: '#40916c' }}
             >
               {loading ? '送信中...' : '確認コードを送信'}
             </button>

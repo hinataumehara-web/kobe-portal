@@ -29,7 +29,7 @@ export default function PortalLayout({
         <Sidebar page={page} onNavigate={onNavigate} />
 
         {/* メインコンテンツ */}
-        <main className="flex-1 overflow-y-auto bg-gray-50 pb-16 md:pb-0">
+        <main className="flex-1 overflow-y-auto pb-16 md:pb-0" style={{ backgroundColor: '#f5fbf6' }}>
           <div className="p-4 max-w-4xl mx-auto">
             {children}
           </div>

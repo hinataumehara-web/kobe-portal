@@ -105,7 +105,7 @@ export default function VerifyCodeForm({ email, verifyCode, resend, onBack }) {
             type="submit"
             disabled={loading || code.length !== 6}
             className="w-full text-white rounded-lg py-2.5 text-sm font-medium transition disabled:opacity-50"
-            style={{ backgroundColor: '#4e8b68' }}
+            style={{ backgroundColor: '#40916c' }}
           >
             {loading ? '確認中...' : '認証する'}
           </button>

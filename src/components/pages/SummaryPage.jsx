@@ -1,7 +1,7 @@
 import { calcSummary } from '../../lib/creditCalc.js'
 import { useCurriculum } from '../../hooks/useCurriculum.js'
 
-const CRIMSON = '#4e8b68'
+const CRIMSON = '#40916c'
 
 /**
  * 単位集計ページ

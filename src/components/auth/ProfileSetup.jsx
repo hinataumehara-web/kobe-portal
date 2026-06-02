@@ -24,7 +24,7 @@ export default function ProfileSetup({ email, createProfile }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#f5fbf6' }}>
       <div className="bg-white rounded-2xl shadow-md p-8 w-full max-w-sm">
         <h2 className="text-lg font-bold text-gray-800 mb-1">はじめまして</h2>
         <p className="text-xs text-gray-500 mb-1">{email}</p>
@@ -50,7 +50,7 @@ export default function ProfileSetup({ email, createProfile }) {
             type="submit"
             disabled={loading}
             className="w-full text-white rounded-lg py-2 text-sm font-medium transition disabled:opacity-50"
-            style={{ backgroundColor: '#4e8b68' }}
+            style={{ backgroundColor: '#40916c' }}
           >
             {loading ? '登録中...' : 'ポータルに進む'}
           </button>

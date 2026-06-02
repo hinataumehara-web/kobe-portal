@@ -4,8 +4,8 @@ import {
 import { calcSummary } from '../../lib/creditCalc.js'
 import { useCurriculum } from '../../hooks/useCurriculum.js'
 
-const CRIMSON = '#4e8b68'
-const GREEN   = '#6aaa82'
+const CRIMSON = '#40916c'
+const GREEN   = '#74c69d'
 
 /**
  * ホーム(ダッシュボード)ページ
@@ -31,7 +31,7 @@ export default function HomePage({ profile, credits, recentExams, onNavigate }) 
       </h2>
 
       {/* 卒業進捗カード */}
-      <div className="bg-white rounded-xl shadow-sm p-5">
+      <div className="bg-white rounded-2xl shadow-md p-5 border border-gray-100">
         <div className="flex items-end justify-between mb-3">
           <span className="text-sm font-medium text-gray-600">卒業単位の進捗</span>
           <span className="text-3xl font-bold" style={{ color: CRIMSON }}>
@@ -39,9 +39,9 @@ export default function HomePage({ profile, credits, recentExams, onNavigate }) 
             <span className="text-base font-normal text-gray-400"> / {totalRequired} 単位</span>
           </span>
         </div>
-        <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden">
+        <div className="w-full rounded-full h-3 overflow-hidden" style={{ backgroundColor: '#d1ead8' }}>
           <div
-            className="h-4 rounded-full transition-all"
+            className="h-3 rounded-full transition-all"
             style={{ width: `${pct}%`, backgroundColor: CRIMSON }}
           />
         </div>
@@ -52,7 +52,7 @@ export default function HomePage({ profile, credits, recentExams, onNavigate }) 
       </div>
 
       {/* 分類別グラフ */}
-      <div className="bg-white rounded-xl shadow-sm p-5">
+      <div className="bg-white rounded-2xl shadow-md p-5 border border-gray-100">
         <h3 className="text-sm font-semibold text-gray-700 mb-3">分類別取得状況</h3>
         <ResponsiveContainer width="100%" height={120}>
           <BarChart data={chartData} layout="vertical" margin={{ left: 8, right: 24 }}>
@@ -74,7 +74,7 @@ export default function HomePage({ profile, credits, recentExams, onNavigate }) 
       </div>
 
       {/* 最近の過去問 */}
-      <div className="bg-white rounded-xl shadow-sm p-5">
+      <div className="bg-white rounded-2xl shadow-md p-5 border border-gray-100">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-gray-700">最近追加された過去問</h3>
           <button
