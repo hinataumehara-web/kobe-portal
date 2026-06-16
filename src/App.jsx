@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 
 import { useAuth }          from './hooks/useAuth.js'
+import { useAutoLock }      from './hooks/useAutoLock.js'
 import { useCredits }       from './hooks/useCredits.js'
 import { useSharedCourses } from './hooks/useSharedCourses.js'
 import { usePastExams }     from './hooks/usePastExams.js'
@@ -9,7 +10,11 @@ import { getCurriculum }    from './data/curriculum.js'
 
 import LoginForm          from './components/auth/LoginForm.jsx'
 import VerifyCodeForm     from './components/auth/VerifyCodeForm.jsx'
-import ProfileSetup       from './components/auth/ProfileSetup.jsx'
+import PassphraseSetup       from './components/auth/PassphraseSetup.jsx'
+import UnlockGate            from './components/auth/UnlockGate.jsx'
+import MigrationGate         from './components/auth/MigrationGate.jsx'
+import RecoveryCodeReveal    from './components/auth/RecoveryCodeReveal.jsx'
+import ResetWithRecoveryGate from './components/auth/ResetWithRecoveryGate.jsx'
 import AdmissionYearModal from './components/auth/AdmissionYearModal.jsx'
 import PortalLayout       from './components/layout/PortalLayout.jsx'
 import { useToast, ToastContainer } from './components/Toast.jsx'
@@ -22,8 +27,24 @@ import CreditsPage    from './components/pages/CreditsPage.jsx'
 import SummaryPage    from './components/pages/SummaryPage.jsx'
 
 export default function App() {
-  const { session, profile, loading: authLoading, signIn, verifyCode, signOut, createProfile, updateAdmissionYear } = useAuth()
-  const { credits, loading: creditsLoading, updateGrade, updateSharedGrade, updateCustomCredit, deleteCustomCredit } = useCredits(profile?.id)
+  const {
+    session, profile, cryptoKey, loading: authLoading,
+    keyless, needsMigration, locked,
+    pendingRecoveryCode, clearPendingRecoveryCode,
+    signIn, verifyCode, signOut,
+    createProfile, unlock, migrate, recoverWithCode,
+    lock,
+    updateAdmissionYear,
+  } = useAuth()
+
+  // 解錠中だけ自動ロックを有効化
+  // 60分無操作 or タブを閉じたとき(beforeunload/pagehide) or バックグラウンド中に期限切れ
+  useAutoLock(lock, {
+    idleMs: 60 * 60 * 1000,
+    enabled: !!cryptoKey,
+  })
+  const [forgotMode, setForgotMode] = useState(false)
+  const { credits, loading: creditsLoading, updateGrade, updateSharedGrade, updateCustomCredit, deleteCustomCredit } = useCredits(profile?.id, cryptoKey)
   const { sharedCourses, loading: sharedCoursesLoading, addSharedCourse, deleteSharedCourse } = useSharedCourses()
   const { exams, loading: examsLoading, uploadExam, getDownloadUrl, deleteExam } = usePastExams()
   const { courseInfos, loading: courseInfoLoading, submitCourseInfo, deleteCourseInfo } = useCourseInfo()
@@ -99,12 +120,70 @@ export default function App() {
   }
 
   // ── ログイン済み・プロフィール未作成(初回) ──────────────────
+  if (keyless) {
+    const defaultStudentId = session.user.email.split('@')[0].toUpperCase()
+    return (
+      <PassphraseSetup
+        email={session.user.email}
+        defaultStudentId={defaultStudentId}
+        onSubmit={({ name, passphrase }) => createProfile(name, passphrase)}
+      />
+    )
+  }
+
+  // ── リカバリーコード発行直後: 必ず一度表示する ──────────────
+  if (pendingRecoveryCode) {
+    return (
+      <RecoveryCodeReveal
+        code={pendingRecoveryCode}
+        onConfirm={() => {
+          clearPendingRecoveryCode()
+          setForgotMode(false)
+        }}
+      />
+    )
+  }
+
+  // ── 既存(平文)ユーザー: 暗号化方式への移行 ────────────────
+  if (needsMigration) {
+    return (
+      <MigrationGate
+        email={session.user.email}
+        onMigrate={({ passphrase, purge }) => migrate(passphrase, { purge })}
+        onSignOut={signOut}
+      />
+    )
+  }
+
+  // ── パスフレーズ忘失リセット ──────────────────────────────
+  if (forgotMode) {
+    return (
+      <ResetWithRecoveryGate
+        email={session.user.email}
+        onSubmit={({ code, newPassphrase }) => recoverWithCode(code, newPassphrase)}
+        onCancel={() => setForgotMode(false)}
+      />
+    )
+  }
+
+  // ── プロフィールあり・鍵未ロード ──────────────────────────────
+  if (locked) {
+    return (
+      <UnlockGate
+        email={session.user.email}
+        onUnlock={unlock}
+        onForgot={() => setForgotMode(true)}
+        onSignOut={signOut}
+      />
+    )
+  }
+
+  // 解錠後だが何らかの理由で profile がまだ null(理論上は起きない)
   if (!profile) {
     return (
-      <ProfileSetup
-        email={session.user.email}
-        createProfile={createProfile}
-      />
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-gray-300 border-t-green-700 rounded-full animate-spin" />
+      </div>
     )
   }
 
