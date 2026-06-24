@@ -10,6 +10,7 @@ import {
   decryptJSON,
   generateRecoveryCode,
   toBytes,
+  toBytea,
 } from '../lib/crypto.js'
 import {
   recoverWithCode as recoverWithCodeLib,
@@ -165,12 +166,12 @@ export function useAuth() {
       .insert({
         id: user.id,
         email: user.email,
-        enc_salt,
-        rec_salt,
-        dek_wrapped_pass: wrapP,
-        dek_wrapped_rec: wrapR,
-        student_no_enc: studentNoEnc,
-        name_enc: nameEnc,
+        enc_salt: toBytea(enc_salt),
+        rec_salt: toBytea(rec_salt),
+        dek_wrapped_pass: toBytea(wrapP),
+        dek_wrapped_rec: toBytea(wrapR),
+        student_no_enc: toBytea(studentNoEnc),
+        name_enc: toBytea(nameEnc),
       })
       .select('id, email, admission_year, enc_salt, rec_salt, dek_wrapped_pass, dek_wrapped_rec, student_no_enc, name_enc')
       .single()

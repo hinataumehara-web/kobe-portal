@@ -257,3 +257,20 @@ export function bytesToHex(bytes) {
       .join('')
   )
 }
+
+/**
+ * Uint8Array を Supabase の bytea カラムへ insert/update するための値に変換する。
+ *
+ * 重要: supabase-js(PostgREST)は body を JSON.stringify するため、Uint8Array を
+ * そのまま渡すと {"0":1,"1":2,...} というオブジェクトに化けて bytea が壊れる。
+ * 必ず本関数で "\\x..." の hex 文字列に変換してから渡すこと。
+ * 読み出し側は toBytes() がこの hex 形式を解釈する。
+ *
+ * @param {Uint8Array | ArrayBuffer | null | undefined} value
+ * @returns {string | null}
+ */
+export function toBytea(value) {
+  if (value == null) return null
+  const u8 = value instanceof Uint8Array ? value : new Uint8Array(value)
+  return bytesToHex(u8)
+}

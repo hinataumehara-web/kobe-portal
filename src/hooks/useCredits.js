@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase.js'
-import { encryptJSON, decryptJSON, toBytes } from '../lib/crypto.js'
+import { encryptJSON, decryptJSON, toBytes, toBytea } from '../lib/crypto.js'
 
 /**
  * 暗号化対応版の useCredits
@@ -56,7 +56,7 @@ export function useCredits(userId, cryptoKey) {
 
   /** 暗号化して 1 行 insert / update */
   async function persist(id, payload) {
-    const payload_enc = await encryptJSON(cryptoKey, payload)
+    const payload_enc = toBytea(await encryptJSON(cryptoKey, payload))
     if (id) {
       const { error } = await supabase
         .from('user_credits_enc')

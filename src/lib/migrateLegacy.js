@@ -10,6 +10,7 @@ import {
   encryptJSON,
   decryptJSON,
   toBytes,
+  toBytea,
 } from './crypto.js'
 
 /**
@@ -92,11 +93,12 @@ export async function migrateLegacy({ passphrase }) {
     const { error: upErr } = await supabase
       .from('profiles')
       .update({
-        enc_salt, rec_salt,
-        dek_wrapped_pass: wrapP,
-        dek_wrapped_rec: wrapR,
-        student_no_enc: studentNoEnc,
-        name_enc: nameEnc,
+        enc_salt: toBytea(enc_salt),
+        rec_salt: toBytea(rec_salt),
+        dek_wrapped_pass: toBytea(wrapP),
+        dek_wrapped_rec: toBytea(wrapR),
+        student_no_enc: toBytea(studentNoEnc),
+        name_enc: toBytea(nameEnc),
       })
       .eq('id', user.id)
     if (upErr) throw upErr
@@ -143,7 +145,7 @@ export async function migrateLegacy({ passphrase }) {
     const payload_enc = await encryptJSON(dek, row)
     const { error } = await supabase
       .from('user_credits_enc')
-      .insert({ user_id: user.id, payload_enc })
+      .insert({ user_id: user.id, payload_enc: toBytea(payload_enc) })
     if (error) throw error
     creditsMigrated++
   }
@@ -255,10 +257,10 @@ export async function recoverWithCode({ recoveryCode, newPassphrase }) {
   const { error: upErr } = await supabase
     .from('profiles')
     .update({
-      enc_salt: new_enc_salt,
-      rec_salt: new_rec_salt,
-      dek_wrapped_pass: wrapP,
-      dek_wrapped_rec: wrapR,
+      enc_salt: toBytea(new_enc_salt),
+      rec_salt: toBytea(new_rec_salt),
+      dek_wrapped_pass: toBytea(wrapP),
+      dek_wrapped_rec: toBytea(wrapR),
     })
     .eq('id', user.id)
   if (upErr) throw upErr
