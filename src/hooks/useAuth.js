@@ -207,6 +207,16 @@ export function useAuth() {
     if (!fresh?.enc_salt) {
       throw new Error('暗号化されたプロフィールがありません。先に移行が必要です')
     }
+    // enc_salt だけあってペイロードが無い(パスフレーズ導入前に開設され、
+    // 暗号化が未確定のまま残った)アカウントは、レガシー復号に入っても
+    // 必ず失敗する。誤解を招く「パスフレーズが正しくありません」ではなく、
+    // 移行が必要である旨を明示して MigrationGate 側へ誘導する。
+    const hasUsableVault =
+      !!fresh.dek_wrapped_pass ||
+      (!!fresh.student_no_enc && !!fresh.name_enc)
+    if (!hasUsableVault) {
+      throw new Error('このアカウントはパスフレーズが未設定です。設定画面から登録してください')
+    }
 
     const kek_p = await deriveKEK(passphrase, toBytes(fresh.enc_salt))
 
@@ -330,9 +340,25 @@ export function useAuth() {
   }, [session])
 
   // 状態フラグ
+  //
+  // ゲート分岐は enc_salt の有無ではなく「実際に復号できる金庫があるか」で判定する。
+  // 暗号化は運用途中で後付けされたため、パスフレーズ導入前に開設されたアカウントには
+  // enc_salt だけが付与され、パスフレーズ(と暗号化ペイロード)が未確定のまま
+  // 残っているものがある。それらを enc_salt だけで locked 扱いにすると、使える
+  // パスフレーズが無いのに UnlockGate へ送られ、MigrationGate にも戻れず詰む。
+  //
+  // 復号可能な金庫の条件は fetchProfile の自動解錠ガードと揃える:
+  //   - 二重ラップ方式: dek_wrapped_pass がある
+  //   - レガシー暗号化方式: student_no_enc と name_enc が揃っている
+  const hasUsableVault =
+    !!rawProfile?.dek_wrapped_pass ||
+    (!!rawProfile?.student_no_enc && !!rawProfile?.name_enc)
+
   const keyless        = !!session && !rawProfile && !loading
-  const needsMigration = !!session && !!rawProfile && !rawProfile.enc_salt && !cryptoKey
-  const locked         = !!session && !!rawProfile && !!rawProfile.enc_salt && !cryptoKey
+  const locked         = !!session && !!rawProfile && !cryptoKey &&  hasUsableVault
+  // enc_salt が中途半端に残っているだけのレガシーアカウントもここに含め、
+  // MigrationGate でパスフレーズを(再)設定できるようにする。
+  const needsMigration = !!session && !!rawProfile && !cryptoKey && !hasUsableVault
   // レガシー暗号化ユーザー(リカバリーコード未設定): unlock 後にバナーを出すために使う
   const hasRecoveryCode = !!rawProfile?.dek_wrapped_rec
 
