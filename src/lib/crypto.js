@@ -160,6 +160,23 @@ export function normalizeRecoveryCode(input) {
 }
 
 /**
+ * 正規化済みのリカバリーコード(区切りなし20文字)を、表示・保存形式の
+ * XXXXX-XXXXX-XXXXX-XXXXX に整形する。generateRecoveryCode と同じ区切り方。
+ *
+ * 用途: 旧実装ではハイフン付き文字列のまま KEK_r を派生していたため、
+ * 後方互換の解錠フォールバックでこの整形版を鍵素材として試す。
+ *
+ * @param {string} input
+ * @returns {string}
+ */
+export function formatRecoveryCode(input) {
+  const s = normalizeRecoveryCode(input)
+  return [s.slice(0, 5), s.slice(5, 10), s.slice(10, 15), s.slice(15, 20)]
+    .filter(Boolean)
+    .join('-')
+}
+
+/**
  * 新規ユーザー用に 16 byte の salt を生成する
  * @returns {Uint8Array}
  */

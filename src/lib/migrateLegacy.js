@@ -7,6 +7,7 @@ import {
   unwrapDEK,
   generateRecoveryCode,
   normalizeRecoveryCode,
+  formatRecoveryCode,
   encryptJSON,
   decryptJSON,
   toBytes,
@@ -81,7 +82,8 @@ export async function migrateLegacy({ passphrase }) {
     const rec_salt = generateSalt()
 
     kek_p = await deriveKEK(passphrase, enc_salt)
-    const kek_r = await deriveKEK(recoveryCode, rec_salt)
+    // リカバリーコードは正規化(区切り除去)してから鍵派生する(解錠時と統一)。
+    const kek_r = await deriveKEK(normalizeRecoveryCode(recoveryCode), rec_salt)
 
     const [wrapP, wrapR, studentNoEnc, nameEnc] = await Promise.all([
       wrapDEK(dek, kek_p),
@@ -232,14 +234,23 @@ export async function recoverWithCode({ recoveryCode, newPassphrase }) {
   const normalized = normalizeRecoveryCode(recoveryCode)
   if (normalized.length < 16) throw new Error('リカバリーコードの形式が正しくありません')
 
-  const kek_r = await deriveKEK(normalized, toBytes(prof.rec_salt))
+  // 鍵素材の候補を順に試す。
+  //   1. 正規化版(区切り無し) … 現行の正しい方式
+  //   2. ハイフン付き整形版      … 旧実装がこの形式のまま KEK_r を派生していたため、
+  //                               既存の壊れた dek_wrapped_rec を後方互換で救済する
+  const recMaterials = [normalized, formatRecoveryCode(normalized)]
 
   let dek
-  try {
-    dek = await unwrapDEK(toBytes(prof.dek_wrapped_rec), kek_r)
-  } catch {
-    throw new Error('リカバリーコードが正しくありません')
+  for (const material of recMaterials) {
+    try {
+      const kek_r = await deriveKEK(material, toBytes(prof.rec_salt))
+      dek = await unwrapDEK(toBytes(prof.dek_wrapped_rec), kek_r)
+      break
+    } catch {
+      // 次の候補へ
+    }
   }
+  if (!dek) throw new Error('リカバリーコードが正しくありません')
 
   // 新 salt + 新 KEK_p + 新リカバリーコード(旧コードを無効化)
   const new_enc_salt = generateSalt()
@@ -247,7 +258,8 @@ export async function recoverWithCode({ recoveryCode, newPassphrase }) {
   const newRecoveryCode = generateRecoveryCode()
 
   const kek_p_new = await deriveKEK(newPassphrase, new_enc_salt)
-  const kek_r_new = await deriveKEK(newRecoveryCode, new_rec_salt)
+  // 新しいリカバリーコードも正規化して鍵派生(解錠時と統一)。
+  const kek_r_new = await deriveKEK(normalizeRecoveryCode(newRecoveryCode), new_rec_salt)
 
   const [wrapP, wrapR] = await Promise.all([
     wrapDEK(dek, kek_p_new),

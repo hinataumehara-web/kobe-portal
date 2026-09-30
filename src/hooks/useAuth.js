@@ -9,6 +9,7 @@ import {
   encryptJSON,
   decryptJSON,
   generateRecoveryCode,
+  normalizeRecoveryCode,
   toBytes,
   toBytea,
 } from '../lib/crypto.js'
@@ -150,7 +151,9 @@ export function useAuth() {
     const rec_salt = generateSalt()
 
     const kek_p = await deriveKEK(passphrase, enc_salt)
-    const kek_r = await deriveKEK(recoveryCode, rec_salt)
+    // リカバリーコードは正規化(区切り除去)してから鍵派生する。
+    // 表示はハイフン付き、鍵素材はハイフン無しで統一し、解錠時の食い違いを防ぐ。
+    const kek_r = await deriveKEK(normalizeRecoveryCode(recoveryCode), rec_salt)
 
     const [wrapP, wrapR, studentNoEnc, nameEnc] = await Promise.all([
       wrapDEK(dek, kek_p),
