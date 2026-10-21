@@ -28,14 +28,14 @@ export function useCourseInfo() {
    * @param {object} fields
    * @param {object} profile - 投稿者プロフィール
    */
-  async function submitCourseInfo(fields, profile) {
+    async function submitCourseInfo({ isAnonymous, ...fields }, profile) {
     const { data, error } = await supabase
       .from('course_info')
       .insert({
         ...fields,
         submitted_by:   profile.id,
-        submitter_name: fields.isAnonymous ? null : profile.name,
-        is_anonymous:   fields.isAnonymous,
+        submitter_name: isAnonymous ? null : profile.name,
+        is_anonymous:   isAnonymous,
       })
       .select()
       .single()
